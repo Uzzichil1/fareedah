@@ -20,8 +20,327 @@ datasource db {
   provider = "postgresql"
 }
 
-/// Placeholder so the schema compiles in Phase 1. Replaced in Phase 2.
-model HealthCheck {
+// ----------------------------------------------------------------------------
+// Identity / auth (Auth.js adapter tables + TinyKloset extensions)
+// ----------------------------------------------------------------------------
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  emailVerified DateTime?
+  passwordHash  String?
+  name          String?
+  image         String?
+  role          Role      @default(USER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts            Account[]
+  storefront          Storefront?
+  orders              Order[]
+  bundles             Bundle[]
+  favorites           Favorite[]
+  sentMessages        Message[]
+  buyerConversations  Conversation[] @relation("BuyerConversations")
+  sellerConversations Conversation[] @relation("SellerConversations")
+}
+
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([provider, providerAccountId])
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@id([identifier, token])
+}
+
+// ----------------------------------------------------------------------------
+// Catalog / taxonomy
+// ----------------------------------------------------------------------------
+
+enum StorefrontStatus {
+  ACTIVE
+  SUSPENDED
+  CLOSED
+}
+
+enum ListingStatus {
+  DRAFT
+  PENDING_REVIEW
+  APPROVED
+  REJECTED
+  LIVE
+  SOLD
+  ARCHIVED
+}
+
+model Category {
+  id       String  @id @default(cuid())
+  name     String
+  slug     String  @unique
+  parentId String?
+
+  parent   Category?  @relation("CategoryTree", fields: [parentId], references: [id])
+  children Category[] @relation("CategoryTree")
+  listings Listing[]
+  sizes    Size[]
+
+  @@index([parentId])
+}
+
+model Condition {
+  id        String    @id @default(cuid())
+  name      String
+  slug      String    @unique
+  sortOrder Int       @default(0)
+  listings  Listing[]
+}
+
+model Size {
+  id         String  @id @default(cuid())
+  label      String
+  sortOrder  Int     @default(0)
+  categoryId String?
+
+  category Category?  @relation(fields: [categoryId], references: [id])
+  listings Listing[]
+
+  @@unique([label, categoryId])
+  @@index([categoryId])
+}
+
+model Brand {
+  id       String    @id @default(cuid())
+  name     String    @unique
+  slug     String    @unique
+  listings Listing[]
+}
+
+model Storefront {
+  id              String           @id @default(cuid())
+  userId          String           @unique
+  slug            String           @unique
+  name            String
+  bio             String?
+  avatarUrl       String?
+  bannerUrl       String?
+  status          StorefrontStatus @default(ACTIVE)
+  stripeAccountId String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  listings   Listing[]
+  orderItems OrderItem[]
+  bundles    Bundle[]
+}
+
+model Listing {
+  id           String        @id @default(cuid())
+  storefrontId String
+  title        String
+  description  String
+  priceCents   Int
+  currency     String        @default("USD")
+  brandId      String?
+  categoryId   String
+  conditionId  String
+  sizeId       String?
+  status       ListingStatus @default(DRAFT)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  storefront  Storefront     @relation(fields: [storefrontId], references: [id], onDelete: Cascade)
+  brand       Brand?         @relation(fields: [brandId], references: [id])
+  category    Category       @relation(fields: [categoryId], references: [id])
+  condition   Condition      @relation(fields: [conditionId], references: [id])
+  size        Size?          @relation(fields: [sizeId], references: [id])
+  images      ListingImage[]
+  favorites   Favorite[]
+  orderItems  OrderItem[]
+  bundleItems BundleItem[]
+
+  @@index([storefrontId])
+  @@index([categoryId])
+  @@index([brandId])
+  @@index([status])
+}
+
+model ListingImage {
+  id        String @id @default(cuid())
+  listingId String
+  url       String
+  position  Int    @default(0)
+
+  listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@index([listingId])
+}
+
+// ----------------------------------------------------------------------------
+// Commerce
+// ----------------------------------------------------------------------------
+
+enum OrderStatus {
+  PENDING
+  PAID
+  SHIPPED
+  DELIVERED
+  COMPLETED
+  CANCELLED
+  REFUNDED
+}
+
+enum BundleStatus {
+  OPEN
+  SUBMITTED
+  ACCEPTED
+  DECLINED
+  CHECKED_OUT
+}
+
+model Order {
+  id                    String      @id @default(cuid())
+  buyerId               String
+  status                OrderStatus @default(PENDING)
+  subtotalCents         Int
+  commissionCents       Int         @default(0)
+  shippingCents         Int         @default(0)
+  totalCents            Int
+  currency              String      @default("USD")
+  stripePaymentIntentId String?
+  shipName              String?
+  shipLine1             String?
+  shipLine2             String?
+  shipCity              String?
+  shipState             String?
+  shipPostalCode        String?
+  shipCountry           String?
+  createdAt             DateTime    @default(now())
+  updatedAt             DateTime    @updatedAt
+
+  buyer User        @relation(fields: [buyerId], references: [id])
+  items OrderItem[]
+
+  @@index([buyerId])
+  @@index([status])
+}
+
+model OrderItem {
+  id           String @id @default(cuid())
+  orderId      String
+  listingId    String
+  storefrontId String
+  priceCents   Int
+  quantity     Int    @default(1)
+
+  order      Order      @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  listing    Listing    @relation(fields: [listingId], references: [id])
+  storefront Storefront @relation(fields: [storefrontId], references: [id])
+
+  @@index([orderId])
+  @@index([listingId])
+  @@index([storefrontId])
+}
+
+model Bundle {
+  id           String       @id @default(cuid())
+  buyerId      String
+  storefrontId String
+  status       BundleStatus @default(OPEN)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  buyer      User         @relation(fields: [buyerId], references: [id])
+  storefront Storefront   @relation(fields: [storefrontId], references: [id])
+  items      BundleItem[]
+
+  @@index([buyerId])
+  @@index([storefrontId])
+}
+
+model BundleItem {
+  id        String @id @default(cuid())
+  bundleId  String
+  listingId String
+
+  bundle  Bundle  @relation(fields: [bundleId], references: [id], onDelete: Cascade)
+  listing Listing @relation(fields: [listingId], references: [id])
+
+  @@unique([bundleId, listingId])
+  @@index([listingId])
+}
+
+// ----------------------------------------------------------------------------
+// Social / messaging
+// ----------------------------------------------------------------------------
+
+model Conversation {
   id        String   @id @default(cuid())
+  buyerId   String
+  sellerId  String
+  listingId String?
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  buyer    User      @relation("BuyerConversations", fields: [buyerId], references: [id])
+  seller   User      @relation("SellerConversations", fields: [sellerId], references: [id])
+  messages Message[]
+
+  @@unique([buyerId, sellerId, listingId])
+  @@index([buyerId])
+  @@index([sellerId])
+}
+
+model Message {
+  id             String    @id @default(cuid())
+  conversationId String
+  senderId       String
+  body           String
+  readAt         DateTime?
+  createdAt      DateTime  @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender       User         @relation(fields: [senderId], references: [id])
+
+  @@index([conversationId])
+  @@index([senderId])
+}
+
+model Favorite {
+  id        String   @id @default(cuid())
+  userId    String
+  listingId String
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, listingId])
+  @@index([listingId])
 }
