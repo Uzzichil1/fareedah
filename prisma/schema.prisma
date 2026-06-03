@@ -1,9 +1,7 @@
 // TinyKloset — Prisma schema (Prisma 7, Rust-free `prisma-client` generator)
 //
-// Phase 1: scaffold only. The full data model (users/roles, storefronts,
-// listings, taxonomy, conditions, orders, bundles, messages, favorites) lands
-// in Phase 2. The single HealthCheck model below exists purely so the schema is
-// valid and `prisma generate` works during scaffolding.
+// Full TinyKloset data model (Phase 2): users/roles, storefronts, catalog/taxonomy,
+// listings, orders, bundles, messaging, favorites.
 //
 // Connection URLs live in `prisma.config.ts` and the runtime adapter, NOT here
 // (Prisma 7 removed `url`/`directUrl` from the datasource block):

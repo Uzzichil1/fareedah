@@ -23,8 +23,16 @@ export async function signupAction(raw: unknown): Promise<ActionResult> {
   const passwordHash = await hashPassword(password);
   await prisma.user.create({ data: { name, email, passwordHash } });
 
-  // On success this throws a redirect, which must propagate.
-  await signIn("credentials", { email, password, redirectTo: "/account" });
+  // On success this throws a redirect, which must propagate; only an
+  // AuthError (unexpected, since we just created+validated the user) is caught.
+  try {
+    await signIn("credentials", { email, password, redirectTo: "/account" });
+  } catch (error) {
+    if (error instanceof AuthError) {
+      return { error: "Account created, but automatic sign-in failed. Please log in." };
+    }
+    throw error;
+  }
 }
 
 export async function loginAction(raw: unknown): Promise<ActionResult> {
