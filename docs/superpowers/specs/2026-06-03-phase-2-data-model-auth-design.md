@@ -95,7 +95,7 @@ documented split and record why.
   `signOut`, `auth`. Prisma adapter, JWT strategy, providers, callbacks,
   custom `pages` (`signIn: "/login"`).
 - `src/app/api/auth/[...nextauth]/route.ts` — re-exports `handlers` GET/POST.
-- `proxy.ts` (repo root) — optimistic redirects only, reading the session from
+- `src/proxy.ts` (sibling of `src/app`, NOT repo root) — optimistic redirects only, reading the session from
   the request. Matcher excludes `/api`, `/_next/*`, static assets.
 - `src/lib/dal.ts` — the secure Data Access Layer:
   - `verifySession()` — memoized with React `cache`; returns `{ userId, role }`

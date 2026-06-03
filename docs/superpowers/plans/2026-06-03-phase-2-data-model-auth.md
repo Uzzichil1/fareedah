@@ -28,7 +28,7 @@
 - `src/types/next-auth.d.ts` — session/JWT type augmentation.
 - `src/app/api/auth/[...nextauth]/route.ts` — Auth.js route handler.
 - `src/lib/dal.ts` — Data Access Layer (`verifySession`, `getCurrentUser`, `requireAdmin`, `requireSeller`).
-- `proxy.ts` — optimistic route protection (repo root).
+- `src/proxy.ts` — optimistic route protection. (Must be at `src/proxy.ts`, a sibling of `src/app` — a repo-root `proxy.ts` does NOT register in this project; verified during Task 9.)
 - `src/app/(auth)/login/page.tsx`, `src/app/(auth)/signup/page.tsx` — auth pages.
 - `src/components/auth/LoginForm.tsx`, `src/components/auth/SignupForm.tsx` — RHF client forms.
 - `src/app/actions/auth.ts` — `signupAction`, `loginAction`, `logoutAction` server actions.
@@ -973,11 +973,11 @@ git commit -m "Add Data Access Layer for secure authorization"
 Read `node_modules/next/dist/docs/01-app/01-getting-started/16-proxy.md` first. `proxy.ts` is Next 16's renamed middleware (Node.js runtime). Use Auth.js's `auth` wrapper for optimistic JWT checks only — no database calls.
 
 **Files:**
-- Create: `proxy.ts` (repo root)
+- Create: `src/proxy.ts` (sibling of `src/app` — NOT the repo root; a root `proxy.ts` does not register in this project)
 
 - [ ] **Step 1: Implement the proxy**
 
-Create `proxy.ts` at the repository root:
+Create `src/proxy.ts` (a sibling of `src/app`, NOT the repo root — Next 16 requires the proxy file at the same level as `app`, and `app` lives under `src/`):
 ```ts
 import { auth } from "@/auth";
 import { NextResponse } from "next/server";
@@ -1029,7 +1029,7 @@ Stop the dev server when done.
 
 Run:
 ```bash
-git add proxy.ts
+git add src/proxy.ts
 git commit -m "Add proxy.ts optimistic route protection"
 ```
 
