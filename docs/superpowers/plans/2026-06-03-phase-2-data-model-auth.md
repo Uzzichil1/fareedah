@@ -736,7 +736,7 @@ git commit -m "Add full TinyKloset data model (replaces HealthCheck placeholder)
 
 - [ ] **Step 1: Confirm the migration target**
 
-Run: `node -e "const u=process.env; require('dotenv').config?.(); console.log('DIRECT_URL host:', (process.env.DIRECT_URL||'').replace(/:.*@/, ':***@'))"` — or simply open `.env` and confirm `DIRECT_URL` points at the intended Supabase project (`kmtbgaayccnqgzjiqspc...supabase.com`). This step applies a real schema to a live database; verify before proceeding.
+Open `.env` and confirm `DIRECT_URL`'s host points at the intended Supabase project (`kmtbgaayccnqgzjiqspc...supabase.com`). This step applies a real schema to a live database; verify before proceeding.
 
 - [ ] **Step 2: Create and apply the migration**
 
@@ -1016,7 +1016,7 @@ export const config = {
 - [ ] **Step 2: Verify the build picks up the proxy**
 
 Run: `npm run build`
-Expected: build succeeds and the output lists a Proxy/Middleware entry. If the build errors that `auth` cannot be used here, fall back to reading the JWT directly with `getToken` from `next-auth/jwt` inside a plain `proxy(req)` function, and record why in the commit message.
+Expected: build succeeds and the output lists a Proxy/Middleware entry. If the build errors that `auth` cannot be used here, fall back to a plain `proxy(req)` function that does a **lightweight cookie-presence check** only — test whether the Auth.js session cookie exists (`req.cookies.get("authjs.session-token") ?? req.cookies.get("__Secure-authjs.session-token")`) rather than fully decoding the JWT. Proxy is optimistic only (the DAL is the real gate), so cookie presence is sufficient here; do not attempt a full `getToken` decode, which may not cleanly handle Auth.js v5's salted cookie. Record the fallback and why in the commit message. If neither approach builds, that is a BLOCKED to surface — not something to paper over.
 
 - [ ] **Step 3: Manual smoke test**
 
@@ -1290,6 +1290,8 @@ export default async function AdminPage() {
 
 - [ ] **Step 7: Build and run the full smoke test**
 
+**Prerequisite:** the smoke test writes a real user (signup), so Task 6's migration must have been **applied** to Supabase. If Task 6 used the `--create-only` fallback, apply it now (`npx prisma migrate dev`) before running this step — otherwise signup fails at runtime and the failure is a missing table, not a bug in this task.
+
 Run: `npm run build`
 Expected: build succeeds with `/login`, `/signup`, `/account`, `/admin` routes listed.
 
@@ -1356,6 +1358,8 @@ git commit -m "Document Phase 2 completion"
 - Vitest + tests (password, authz, zod) → Tasks 1–4.
 - Apple inert when unset → Task 7.
 - Acceptance criteria (lint/test/build, auth flow, proxy+DAL) → Tasks 9, 10, 11.
+
+**Authorization test coverage (precise):** Only the pure role predicate (`isAdmin`/`canAccessAdminArea`) is unit-tested (Task 3). The DAL's enforcement — `verifySession`/`requireAdmin`/`requireSeller` redirect behavior — is **not** unit-tested; it is verified by the Task 9/10 smoke tests (logged-out → `/login`, non-admin → `/` on `/admin`). This is acceptable for a minimal phase, but the security-sensitive enforcement rests on smoke tests, not automated coverage — a future phase should add integration tests for the DAL.
 
 **Placeholder scan:** No "TBD/TODO/handle edge cases" steps; every code step shows full code; every command shows expected output.
 
