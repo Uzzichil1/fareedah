@@ -1,0 +1,27 @@
+// TinyKloset — Prisma schema (Prisma 7, Rust-free `prisma-client` generator)
+//
+// Phase 1: scaffold only. The full data model (users/roles, storefronts,
+// listings, taxonomy, conditions, orders, bundles, messages, favorites) lands
+// in Phase 2. The single HealthCheck model below exists purely so the schema is
+// valid and `prisma generate` works during scaffolding.
+//
+// Connection URLs live in `prisma.config.ts` and the runtime adapter, NOT here
+// (Prisma 7 removed `url`/`directUrl` from the datasource block):
+//   - DATABASE_URL : pooled connection (PgBouncer, 6543) used by the app at runtime
+//                    via the @prisma/adapter-pg driver (see src/lib/db.ts)
+//   - DIRECT_URL   : direct connection (5432) used by `prisma migrate` via prisma.config.ts
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// Placeholder so the schema compiles in Phase 1. Replaced in Phase 2.
+model HealthCheck {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+}
