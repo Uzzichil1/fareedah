@@ -3,9 +3,9 @@
 A mobile-first, installable (PWA) peer-to-peer marketplace for **curated pre-loved
 and boutique baby & children's clothing, footwear, and accessories**.
 
-> **Status: Phase 1 (scaffold).** This repo currently contains the project
-> skeleton and a runnable branded home page. Auth, listings, curation, checkout,
-> payments, shipping, and messaging are built in later phases.
+> **Status: Phase 2 (data model + auth).** The data model and authentication
+> (email/password + Google, role-based access) are in place. Listings, curation,
+> checkout, payments, shipping, and messaging are built in later phases.
 
 ## Stack
 
@@ -125,8 +125,8 @@ src/
 
 ## Roadmap (build phases)
 
-1. **Scaffold** ← *you are here*
-2. Data model + Auth.js (roles, SSO, role-based middleware)
+1. **Scaffold** ✅ done
+2. **Data model + Auth.js** (roles, SSO, role-based middleware) ← *you are here*
 3. Listings, Cloudinary upload, admin curation queue, browse/filter, storefronts
 4. Cart/bundles, Stripe Connect checkout (escrow + commission), Shippo labels, messaging
 5. Wishlist, responsive QA, error/empty states, seed data
