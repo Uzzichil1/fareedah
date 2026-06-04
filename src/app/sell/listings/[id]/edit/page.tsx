@@ -27,6 +27,11 @@ export default async function EditListingPage({ params }: { params: Promise<{ id
     <main className="mx-auto max-w-lg p-6">
       <h1 className="mb-4 text-2xl font-semibold">Edit listing</h1>
       <p className="mb-2 text-sm text-zinc-500">Status: {listing.status}</p>
+      {listing.status === "REJECTED" && listing.rejectionReason && (
+        <p className="mb-4 rounded bg-red-50 p-2 text-sm text-red-700">
+          Rejected: {listing.rejectionReason}
+        </p>
+      )}
       <ListingForm
         listingId={listing.id}
         categories={categories.map((c) => ({ id: c.id, label: c.parent ? `${c.parent.name} › ${c.name}` : c.name }))}

@@ -171,6 +171,9 @@ export async function submitListing(id: string): Promise<ActionResult> {
   if (!check.success) {
     return { error: "Add a description, a price above $0, and at least one image before submitting." };
   }
-  await prisma.listing.update({ where: { id }, data: { status: "PENDING_REVIEW" } });
+  await prisma.listing.update({
+    where: { id },
+    data: { status: "PENDING_REVIEW", rejectionReason: null },
+  });
   redirect("/sell");
 }
