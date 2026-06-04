@@ -3,14 +3,16 @@
 A mobile-first, installable (PWA) peer-to-peer marketplace for **curated pre-loved
 and boutique baby & children's clothing, footwear, and accessories**.
 
-> **Status: Phase 3a (seller storefront onboarding + listing drafts + signed uploads).**
+> **Status: Phase 3b (admin curation queue) done.**
 > Phase 3a is in place: seller storefront onboarding (`/sell/start`), seller
 > dashboard (`/sell`), listing create/edit/submit-for-review (`/sell/listings/new`,
 > `/sell/listings/[id]/edit`), and Cloudinary signed-upload code + uploader component.
 > **Real image uploads require `CLOUDINARY_*` credentials in `.env`** — those are
 > absent in this repo, so uploads are code-verified only (no live Cloudinary calls).
-> Phase 3b (admin curation queue) and Phase 3c (public browse/filter/listing-detail/
-> storefront pages) are not yet built.
+> Phase 3b is done: the `/admin` curation queue lets admins review `PENDING_REVIEW`
+> listings, approve them to `LIVE`, or reject them with a reason (`REJECTED` +
+> `rejectionReason`). Phase 3c (public browse/filter, listing detail, storefront
+> pages) is not yet built.
 
 ## Stack
 
@@ -133,8 +135,8 @@ src/
 1. **Scaffold** ✅ done
 2. **Data model + Auth.js** (roles, SSO, role-based middleware) ✅ done
 3. **Listings + Cloudinary + Curation + Browse/Storefronts**
-   - 3a: Seller storefront onboarding, listing create/edit/submit, signed-upload code ✅ done ← *you are here*
-   - 3b: Admin curation queue *(not started)*
+   - 3a: Seller storefront onboarding, listing create/edit/submit, signed-upload code ✅ done
+   - 3b: Admin curation queue (approve → LIVE / reject with reason) ✅ done
    - 3c: Public browse/filter, listing detail, storefront pages *(not started)*
 4. Cart/bundles, Stripe Connect checkout (escrow + commission), Shippo labels, messaging
 5. Wishlist, responsive QA, error/empty states, seed data
