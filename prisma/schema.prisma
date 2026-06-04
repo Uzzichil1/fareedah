@@ -190,10 +190,11 @@ model Listing {
 }
 
 model ListingImage {
-  id        String @id @default(cuid())
+  id        String  @id @default(cuid())
   listingId String
   url       String
-  position  Int    @default(0)
+  publicId  String?
+  position  Int     @default(0)
 
   listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
 
