@@ -143,9 +143,11 @@ git commit -m "Add ListingImage.publicId for Cloudinary asset references"
 
 ---
 
-## Task 3: Taxonomy seed
+## Task 4: Taxonomy seed
 
 **Files:** `prisma/seed.ts`
+
+> Runs after Task 3 (utils): this seed imports `src/lib/slug.ts`.
 
 - [ ] **Step 1: Write the seed**
 
@@ -225,7 +227,7 @@ main()
     process.exit(1);
   });
 ```
-(Depends on `src/lib/slug.ts` from Task 4 — if implementing strictly in order, do Task 4 first, or inline a local `slugify`. The committed plan orders Task 4 before running the seed in Step 2 below; create `src/lib/slug.ts` first if not present.)
+(`src/lib/slug.ts` is created in Task 3, which executes before this task — the import resolves.)
 
 - [ ] **Step 2: Run the seed (idempotent, live Supabase)**
 
@@ -248,7 +250,7 @@ git commit -m "Add idempotent taxonomy seed (conditions, categories, sizes)"
 
 ---
 
-## Task 4: Slug and money utilities (TDD)
+## Task 3: Slug and money utilities (TDD)
 
 **Files:** `src/lib/slug.ts`, `src/lib/slug.test.ts`, `src/lib/money.ts`, `src/lib/money.test.ts`
 
@@ -658,7 +660,7 @@ Create `src/app/sell/actions.ts`:
 
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
-import { verifySession, requireSeller } from "@/lib/dal";
+import { verifySession } from "@/lib/dal";
 import { slugify, uniqueSlug } from "@/lib/slug";
 import { storefrontSchema } from "@/lib/validation/storefront";
 
@@ -843,9 +845,8 @@ git commit -m "Add seller dashboard at /sell"
 
 - [ ] **Step 1: Add upload-signature + listing actions**
 
-Append to `src/app/sell/actions.ts` (keep the existing imports; add the new ones):
+Extend `src/app/sell/actions.ts`. **Merge the imports into the existing top import block** (do NOT add a second `import ... from "@/lib/dal"` line — `no-duplicate-imports` would fail lint). Specifically, change the existing `import { verifySession } from "@/lib/dal";` to `import { verifySession, requireSeller } from "@/lib/dal";`, and add these new import lines to the top block:
 ```ts
-import { requireSeller } from "@/lib/dal";
 import { dollarsToCents } from "@/lib/money";
 import { findOrCreateBrand } from "@/lib/brands";
 import { buildUploadSignature } from "@/lib/cloudinary";
@@ -854,6 +855,9 @@ import {
   listingSubmitSchema,
   type ListingDraftInput,
 } from "@/lib/validation/listing";
+```
+Then append the new functions below the existing `createStorefront`:
+```ts
 
 export type UploadSignature = {
   timestamp: number;
@@ -1352,14 +1356,23 @@ git commit -m "Document Phase 3a"
 ## Self-Review
 
 **Spec coverage:**
-- Taxonomy seed (idempotent, deterministic size ids) → Task 3.
+- Taxonomy seed (idempotent, deterministic size ids) → Task 4.
 - `ListingImage.publicId` migration → Task 2.
 - Cloudinary signed uploads (signature builder, action, uploader, remotePatterns, no SDK) → Tasks 1, 5, 10, 11.
 - Storefront onboarding via `verifySession` (no loop) → Task 8.
-- Listing draft→submit CRUD, ownership, dollars→cents, brand find-or-create → Tasks 4, 6, 10, 12.
+- Listing draft→submit CRUD, ownership, dollars→cents, brand find-or-create → Tasks 3, 6, 10, 12.
 - Seller dashboard as acceptance surface → Task 9.
-- Validation + Vitest units → Tasks 4, 5, 6.
+- Validation + Vitest units → Tasks 3, 5, 6.
 - Docs/verification → Task 13.
+
+**Submit-flow verification (honest):** `submitListing` requires ≥1 image, and
+adding an image needs Cloudinary creds (absent). So the **submit → PENDING_REVIEW
+transition is NOT runtime-verifiable through the UI** in 3a. Its gate is
+`listingSubmitSchema`, which **is** unit-tested (Task 6: rejects price 0 / empty
+images, accepts a complete listing). DRAFT create/edit **is** runtime-verifiable
+on `/sell` (drafts allow 0 images). To manually confirm the transition, a
+`ListingImage` row can be inserted directly in Supabase (the P2 seeded-row
+pattern). Do not claim "submit works" as UI-runtime-verified.
 
 **Cloudinary honesty:** Real upload is code-verified only (signature unit-tested, build passes); the uploader's network call to Cloudinary is NOT runtime-verified (creds absent) — Task 13/acceptance must not claim otherwise.
 

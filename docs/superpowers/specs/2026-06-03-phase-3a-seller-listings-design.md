@@ -183,10 +183,14 @@ listing, an **ownership check** (`listing.storefrontId === current storefront`).
 4. A signed-in user with no storefront visiting `/sell` (or `/sell/listings/new`)
    is sent to `/sell/start`; creating a storefront there lands them on `/sell`;
    visiting `/sell/start` with an existing storefront redirects to `/sell`.
-5. A seller can create a `DRAFT` listing, edit it, and **submit** it →
-   `PENDING_REVIEW`; the dashboard shows the listing with the correct status
-   badge; the row exists in the DB with `priceCents` correct (integer cents) and
-   the selected taxonomy FKs set.
+5. A seller can create a `DRAFT` listing and edit it; the dashboard shows it
+   with the `DRAFT` badge and the row exists in the DB with `priceCents` correct
+   (integer cents) and the selected taxonomy FKs set. **This is runtime-verifiable
+   on `/sell`** (drafts allow zero images). The **submit → `PENDING_REVIEW`**
+   transition requires ≥1 image, which needs Cloudinary creds (absent); its gate
+   (`listingSubmitSchema`) is **unit-tested**, and the transition can be manually
+   confirmed by inserting a `ListingImage` row directly in Supabase. It is **not**
+   claimed as UI-runtime-verified in 3a.
 6. Brand free-text find-or-creates a `Brand` row (no duplicates for the same
    normalized name).
 7. The Cloudinary signature builder is unit-tested; `next.config.ts` allows
