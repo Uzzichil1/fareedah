@@ -67,17 +67,21 @@ export async function createUploadSignature(): Promise<UploadSignature> {
 }
 
 async function persistImages(listingId: string, images: ListingDraftInput["images"]) {
-  await prisma.listingImage.deleteMany({ where: { listingId } });
-  if (images.length > 0) {
-    await prisma.listingImage.createMany({
-      data: images.map((img, i) => ({
-        listingId,
-        url: img.url,
-        publicId: img.publicId ?? null,
-        position: img.position ?? i,
-      })),
-    });
-  }
+  await prisma.$transaction([
+    prisma.listingImage.deleteMany({ where: { listingId } }),
+    ...(images.length > 0
+      ? [
+          prisma.listingImage.createMany({
+            data: images.map((img, i) => ({
+              listingId,
+              url: img.url,
+              publicId: img.publicId ?? null,
+              position: img.position ?? i,
+            })),
+          }),
+        ]
+      : []),
+  ]);
 }
 
 /** Create a DRAFT listing. Returns the new id or an error. */
