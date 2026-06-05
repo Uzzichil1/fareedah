@@ -1,121 +1,99 @@
-import Link from "next/link";
+import { prisma } from "@/lib/db";
+import { buildListingWhere, parseSort, PAGE_SIZE } from "@/lib/listing-query";
+import { getLeafCategories, getSizes, getConditions, getBrands } from "@/lib/taxonomy";
+import { ListingCard } from "@/components/listings/ListingCard";
+import { FilterBar } from "@/components/listings/FilterBar";
 
-const AGE_BRACKETS = [
-  "Preemie",
-  "0–3M",
-  "3–6M",
-  "6–12M",
-  "12–18M",
-  "18–24M",
-  "2T",
-  "3T",
-  "4T",
-  "5T",
-];
+type SP = Record<string, string | string[] | undefined>;
 
-export default function Home() {
+function str(sp: SP, key: string): string | undefined {
+  const v = sp[key];
+  return typeof v === "string" && v !== "" ? v : undefined;
+}
+
+function pageHref(sp: SP, page: number): string {
+  const q = new URLSearchParams();
+  for (const [k, v] of Object.entries(sp)) {
+    if (k !== "page" && typeof v === "string" && v !== "") q.set(k, v);
+  }
+  q.set("page", String(page));
+  return `/?${q.toString()}`;
+}
+
+export default async function HomePage({ searchParams }: { searchParams: Promise<SP> }) {
+  const sp = await searchParams;
+  const params = {
+    category: str(sp, "category"),
+    size: str(sp, "size"),
+    condition: str(sp, "condition"),
+    brand: str(sp, "brand"),
+    priceMin: str(sp, "priceMin"),
+    priceMax: str(sp, "priceMax"),
+    q: str(sp, "q"),
+  };
+  const page = Math.max(1, Number(str(sp, "page")) || 1);
+  const where = buildListingWhere(params);
+  const orderBy = parseSort(str(sp, "sort"));
+
+  const [listings, total, categories, sizes, conditions, brands] = await Promise.all([
+    prisma.listing.findMany({
+      where,
+      orderBy,
+      skip: (page - 1) * PAGE_SIZE,
+      take: PAGE_SIZE,
+      include: { images: { orderBy: { position: "asc" }, take: 1 }, brand: { select: { name: true } } },
+    }),
+    prisma.listing.count({ where }),
+    getLeafCategories(),
+    getSizes(),
+    getConditions(),
+    getBrands(),
+  ]);
+
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+
   return (
-    <div className="flex flex-1 flex-col">
-      {/* Top bar */}
-      <header className="flex items-center justify-between px-5 py-4">
-        <span className="flex items-center gap-2 font-semibold tracking-tight">
-          <span className="grid h-7 w-7 place-items-center rounded-full bg-pink-600 text-xs text-white">
-            TK
-          </span>
-          TinyKloset
-        </span>
-        <span className="rounded-full bg-pink-50 px-3 py-1 text-xs font-medium text-pink-700">
-          Phase 1 preview
-        </span>
+    <main className="mx-auto max-w-5xl p-6">
+      <header className="mb-6">
+        <h1 className="text-2xl font-semibold text-pink-600">TinyKloset</h1>
+        <p className="text-sm text-zinc-500">Curated pre-loved &amp; boutique kids&apos; fashion</p>
       </header>
 
-      {/* Hero */}
-      <main className="flex flex-1 flex-col">
-        <section className="px-5 pt-8 pb-10 sm:pt-14">
-          <div className="mx-auto w-full max-w-md sm:max-w-lg">
-            <p className="text-sm font-medium text-pink-600">
-              Curated. Pre-loved. Boutique.
-            </p>
-            <h1 className="mt-3 text-4xl font-semibold leading-tight tracking-tight sm:text-5xl">
-              Little outfits,
-              <br />
-              loved again.
-            </h1>
-            <p className="mt-4 text-base leading-7 text-zinc-600">
-              TinyKloset is a peer-to-peer marketplace for pre-loved and boutique
-              baby &amp; children&apos;s clothing, footwear, and accessories — shop by
-              age, size, brand, and condition, and check out across multiple
-              sellers in one go.
-            </p>
+      <FilterBar
+        categories={categories.map((c) => ({ id: c.id, label: c.name }))}
+        sizes={sizes.map((s) => ({ id: s.id, label: s.label }))}
+        conditions={conditions.map((c) => ({ id: c.id, label: c.name }))}
+        brands={brands.map((b) => ({ id: b.id, label: b.name }))}
+        current={{ ...params, sort: str(sp, "sort") }}
+      />
 
-            <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-              <Link
-                href="/"
-                aria-disabled
-                className="flex h-12 items-center justify-center rounded-full bg-pink-600 px-6 text-sm font-medium text-white transition-colors hover:bg-pink-700"
-              >
-                Shop the kloset
-              </Link>
-              <Link
-                href="/"
-                aria-disabled
-                className="flex h-12 items-center justify-center rounded-full border border-zinc-200 px-6 text-sm font-medium text-zinc-900 transition-colors hover:bg-zinc-50"
-              >
-                Start selling
-              </Link>
-            </div>
-            <p className="mt-3 text-xs text-zinc-400">
-              Browsing &amp; selling open up in later phases — this is the scaffold.
-            </p>
-          </div>
-        </section>
-
-        {/* Shop by age */}
-        <section className="border-t border-zinc-100 px-5 py-8">
-          <div className="mx-auto w-full max-w-md sm:max-w-lg">
-            <h2 className="text-sm font-semibold text-zinc-900">Shop by age</h2>
-            <ul className="mt-4 flex flex-wrap gap-2">
-              {AGE_BRACKETS.map((age) => (
-                <li
-                  key={age}
-                  className="rounded-full border border-zinc-200 bg-white px-3.5 py-1.5 text-sm text-zinc-700"
-                >
-                  {age}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </section>
-
-        {/* Trust strip */}
-        <section className="border-t border-zinc-100 px-5 py-8">
-          <div className="mx-auto grid w-full max-w-md gap-4 sm:max-w-lg sm:grid-cols-3">
-            {[
-              {
-                title: "Admin-curated",
-                body: "Every listing is reviewed before it goes live.",
-              },
-              {
-                title: "Bundle & save",
-                body: "Combine items from one seller, pay shipping once.",
-              },
-              {
-                title: "Secure escrow",
-                body: "Funds released to sellers only after delivery.",
-              },
-            ].map(({ title, body }) => (
-              <div key={title} className="rounded-2xl bg-zinc-50 p-4">
-                <p className="text-sm font-semibold text-zinc-900">{title}</p>
-                <p className="mt-1 text-sm leading-6 text-zinc-600">{body}</p>
-              </div>
+      {listings.length === 0 ? (
+        <p className="text-zinc-600">No listings match your filters.</p>
+      ) : (
+        <>
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+            {listings.map((l) => (
+              <ListingCard
+                key={l.id}
+                listing={{
+                  id: l.id,
+                  title: l.title,
+                  priceCents: l.priceCents,
+                  brandName: l.brand?.name ?? null,
+                  imageUrl: l.images[0]?.url ?? null,
+                }}
+              />
             ))}
           </div>
-        </section>
-      </main>
-
-      <footer className="px-5 py-8 text-center text-xs text-zinc-400">
-        © {new Date().getFullYear()} TinyKloset
-      </footer>
-    </div>
+          <nav className="mt-6 flex items-center justify-between text-sm">
+            <span className="text-zinc-500">{total} item{total === 1 ? "" : "s"} · page {page} of {totalPages}</span>
+            <span className="flex gap-2">
+              {page > 1 && <a className="rounded border px-3 py-1" href={pageHref(sp, page - 1)}>Previous</a>}
+              {page < totalPages && <a className="rounded border px-3 py-1" href={pageHref(sp, page + 1)}>Next</a>}
+            </span>
+          </nav>
+        </>
+      )}
+    </main>
   );
 }
