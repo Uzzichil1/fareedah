@@ -16,3 +16,15 @@ export const getCategories = cache(() =>
     include: { parent: { select: { name: true } } },
   }),
 );
+
+/** Leaf categories only (those with no children) — what listings are tagged with. */
+export const getLeafCategories = cache(() =>
+  prisma.category.findMany({
+    where: { children: { none: {} } },
+    orderBy: { name: "asc" },
+  }),
+);
+
+export const getBrands = cache(() =>
+  prisma.brand.findMany({ orderBy: { name: "asc" } }),
+);
