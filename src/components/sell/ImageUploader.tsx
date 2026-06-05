@@ -58,18 +58,51 @@ export function ImageUploader({
   }
 
   return (
-    <div className="flex flex-col gap-2">
-      <input type="file" accept="image/*" multiple disabled={busy} onChange={(e) => handleFiles(e.target.files)} />
-      {busy && <p className="text-sm text-zinc-500">Uploading…</p>}
-      {error && <p className="text-sm text-red-600">{error}</p>}
-      <div className="flex flex-wrap gap-2">
+    <div className="flex flex-col gap-3">
+      <label className="flex cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-line bg-paper/60 px-4 py-6 text-center transition-colors hover:border-rose-soft hover:bg-blush/30">
+        <svg
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="text-ink-soft"
+          aria-hidden="true"
+        >
+          <path d="M12 16V4M7 9l5-5 5 5" />
+          <path d="M5 20h14" />
+        </svg>
+        <span className="text-sm font-medium text-ink">Add photos</span>
+        <span className="text-xs text-ink-soft">Up to {MAX_IMAGES} · JPG or PNG</span>
+        <input
+          type="file"
+          accept="image/*"
+          multiple
+          disabled={busy}
+          onChange={(e) => handleFiles(e.target.files)}
+          className="sr-only"
+        />
+      </label>
+      {busy && <p className="text-sm text-ink-soft">Uploading…</p>}
+      {error && <p className="text-sm text-danger">{error}</p>}
+      <div className="flex flex-wrap gap-3">
         {value.map((img, i) => (
-          <div key={img.publicId || img.url} className="relative">
-            <Image src={img.url} alt="" width={80} height={80} className="rounded object-cover" />
+          <div key={img.publicId || img.url} className="group relative">
+            <Image
+              src={img.url}
+              alt=""
+              width={84}
+              height={84}
+              className="h-21 w-21 rounded-xl object-cover ring-1 ring-line"
+            />
             <button
               type="button"
               onClick={() => remove(i)}
-              className="absolute -right-2 -top-2 rounded-full bg-zinc-900 px-1 text-xs text-white"
+              aria-label="Remove image"
+              className="absolute -right-2 -top-2 grid h-6 w-6 place-items-center rounded-full bg-ink text-sm leading-none text-paper shadow-[var(--shadow-card)] transition-colors hover:bg-danger"
             >
               ×
             </button>

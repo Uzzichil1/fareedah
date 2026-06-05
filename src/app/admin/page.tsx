@@ -4,6 +4,8 @@ import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/dal";
 import { centsToDollars } from "@/lib/money";
 import { CurationActions } from "@/components/admin/CurationActions";
+import { SiteHeader } from "@/components/site/SiteHeader";
+import { Badge } from "@/components/ui/Badge";
 
 export const metadata: Metadata = { title: "Curation queue" };
 
@@ -23,35 +25,67 @@ export default async function AdminPage() {
   });
 
   return (
-    <main className="mx-auto max-w-3xl p-6">
-      <h1 className="mb-4 text-2xl font-semibold">Curation queue</h1>
-      {listings.length === 0 ? (
-        <p className="text-zinc-600">No listings awaiting review.</p>
-      ) : (
-        <ul className="flex flex-col gap-6">
-          {listings.map((l) => (
-            <li key={l.id} className="rounded border p-4">
-              {l.images.length > 0 && (
-                <div className="mb-2 flex flex-wrap gap-2">
-                  {l.images.map((img) => (
-                    <Image key={img.id} src={img.url} alt="" width={64} height={64} className="rounded object-cover" />
-                  ))}
+    <>
+      <SiteHeader />
+
+      <main className="mx-auto w-full max-w-3xl px-5 py-10 sm:px-8">
+        <div className="mb-8 flex items-end justify-between gap-4">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-sage">Admin</p>
+            <h1 className="mt-1 font-display text-3xl text-ink">Curation queue</h1>
+          </div>
+          <Badge tone="rose">
+            {listings.length} pending
+          </Badge>
+        </div>
+
+        {listings.length === 0 ? (
+          <div className="grid place-items-center rounded-[20px] border border-dashed border-line bg-surface/60 px-6 py-16 text-center">
+            <p className="font-display text-xl italic text-rose">The queue is clear.</p>
+            <p className="mt-2 text-sm text-ink-soft">No listings awaiting review.</p>
+          </div>
+        ) : (
+          <ul className="flex flex-col gap-6">
+            {listings.map((l) => (
+              <li
+                key={l.id}
+                className="rounded-2xl border border-line bg-surface p-5 shadow-[var(--shadow-card)]"
+              >
+                {l.images.length > 0 && (
+                  <div className="mb-4 flex flex-wrap gap-2">
+                    {l.images.map((img) => (
+                      <Image
+                        key={img.id}
+                        src={img.url}
+                        alt=""
+                        width={84}
+                        height={84}
+                        className="h-21 w-21 rounded-xl object-cover ring-1 ring-line"
+                      />
+                    ))}
+                  </div>
+                )}
+                <div className="flex items-baseline justify-between gap-3">
+                  <h2 className="font-display text-lg text-ink">{l.title}</h2>
+                  <span className="font-display text-lg text-rose">
+                    ${centsToDollars(l.priceCents)}
+                  </span>
                 </div>
-              )}
-              <h2 className="font-medium">{l.title}</h2>
-              <p className="text-sm text-zinc-500">
-                ${centsToDollars(l.priceCents)} · {l.storefront.name}
-              </p>
-              <p className="text-sm text-zinc-500">
-                {l.category.name} · {l.condition.name}
-                {l.size ? ` · ${l.size.label}` : ""}
-              </p>
-              <p className="my-2 text-sm">{l.description}</p>
-              <CurationActions listingId={l.id} />
-            </li>
-          ))}
-        </ul>
-      )}
-    </main>
+                <p className="mt-1 text-sm text-ink-soft">
+                  {l.storefront.name} · {l.category.name} · {l.condition.name}
+                  {l.size ? ` · ${l.size.label}` : ""}
+                </p>
+                <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-ink/90">
+                  {l.description}
+                </p>
+                <div className="mt-4 border-t border-line pt-4">
+                  <CurationActions listingId={l.id} />
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </main>
+    </>
   );
 }

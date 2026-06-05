@@ -5,6 +5,7 @@ import { requireSeller } from "@/lib/dal";
 import { getCategories, getConditions, getSizes } from "@/lib/taxonomy";
 import { centsToDollars } from "@/lib/money";
 import { ListingForm } from "@/components/sell/ListingForm";
+import { SiteHeader } from "@/components/site/SiteHeader";
 
 export const metadata: Metadata = { title: "Edit listing" };
 
@@ -24,30 +25,40 @@ export default async function EditListingPage({ params }: { params: Promise<{ id
   ]);
 
   return (
-    <main className="mx-auto max-w-lg p-6">
-      <h1 className="mb-4 text-2xl font-semibold">Edit listing</h1>
-      <p className="mb-2 text-sm text-zinc-500">Status: {listing.status}</p>
-      {listing.status === "REJECTED" && listing.rejectionReason && (
-        <p className="mb-4 rounded bg-red-50 p-2 text-sm text-red-700">
-          Rejected: {listing.rejectionReason}
+    <>
+      <SiteHeader />
+
+      <main className="mx-auto w-full max-w-lg px-5 py-10 sm:px-8">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-sage">
+          Edit piece
         </p>
-      )}
-      <ListingForm
-        listingId={listing.id}
-        categories={categories.map((c) => ({ id: c.id, label: c.parent ? `${c.parent.name} › ${c.name}` : c.name }))}
-        conditions={conditions.map((c) => ({ id: c.id, label: c.name }))}
-        sizes={sizes.map((s) => ({ id: s.id, label: s.label }))}
-        initial={{
-          title: listing.title,
-          description: listing.description,
-          priceDollars: centsToDollars(listing.priceCents),
-          categoryId: listing.categoryId,
-          conditionId: listing.conditionId,
-          sizeId: listing.sizeId ?? "",
-          brand: listing.brand?.name ?? "",
-          images: listing.images.map((i) => ({ url: i.url, publicId: i.publicId ?? "", position: i.position })),
-        }}
-      />
-    </main>
+        <h1 className="mt-1 font-display text-3xl text-ink">Edit listing</h1>
+
+        {listing.status === "REJECTED" && listing.rejectionReason ? (
+          <div className="mt-5 rounded-xl border border-danger/30 bg-danger-soft px-4 py-3 text-sm text-danger">
+            <span className="font-semibold">Rejected:</span> {listing.rejectionReason}
+          </div>
+        ) : null}
+
+        <div className="mt-8">
+          <ListingForm
+            listingId={listing.id}
+            categories={categories.map((c) => ({ id: c.id, label: c.parent ? `${c.parent.name} › ${c.name}` : c.name }))}
+            conditions={conditions.map((c) => ({ id: c.id, label: c.name }))}
+            sizes={sizes.map((s) => ({ id: s.id, label: s.label }))}
+            initial={{
+              title: listing.title,
+              description: listing.description,
+              priceDollars: centsToDollars(listing.priceCents),
+              categoryId: listing.categoryId,
+              conditionId: listing.conditionId,
+              sizeId: listing.sizeId ?? "",
+              brand: listing.brand?.name ?? "",
+              images: listing.images.map((i) => ({ url: i.url, publicId: i.publicId ?? "", position: i.position })),
+            }}
+          />
+        </div>
+      </main>
+    </>
   );
 }

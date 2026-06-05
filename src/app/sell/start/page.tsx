@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { verifySession } from "@/lib/dal";
 import { StorefrontForm } from "@/components/sell/StorefrontForm";
+import { SiteHeader } from "@/components/site/SiteHeader";
 
 export const metadata: Metadata = { title: "Open your storefront" };
 
@@ -12,10 +13,22 @@ export default async function SellStartPage() {
   if (existing) redirect("/sell");
 
   return (
-    <main className="mx-auto max-w-sm p-6">
-      <h1 className="mb-4 text-2xl font-semibold">Open your storefront</h1>
-      <p className="mb-4 text-zinc-600">Set up a storefront to start listing items.</p>
-      <StorefrontForm />
-    </main>
+    <>
+      <SiteHeader />
+
+      <main className="mx-auto w-full max-w-md px-5 py-12 sm:px-8">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-sage">
+          Become a seller
+        </p>
+        <h1 className="mt-1 font-display text-3xl text-ink">Open your storefront</h1>
+        <p className="mt-3 text-[15px] leading-relaxed text-ink-soft">
+          Give your little shop a name and a few words. You can start listing
+          pieces the moment it&apos;s open.
+        </p>
+        <div className="mt-8 rounded-2xl border border-line bg-surface p-6 shadow-[var(--shadow-card)]">
+          <StorefrontForm />
+        </div>
+      </main>
+    </>
   );
 }

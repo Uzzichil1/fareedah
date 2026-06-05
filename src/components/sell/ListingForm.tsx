@@ -4,6 +4,8 @@ import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { ImageUploader, type UploadedImage } from "@/components/sell/ImageUploader";
 import { createListing, updateListing, submitListing } from "@/app/sell/actions";
+import { Input, Textarea, Select, Label, FieldError } from "@/components/ui/inputs";
+import { Button } from "@/components/ui/Button";
 
 type Option = { id: string; label: string };
 
@@ -74,33 +76,71 @@ export function ListingForm({ listingId, categories, conditions, sizes, initial 
         e.preventDefault();
         run(false);
       }}
-      className="flex flex-col gap-3"
+      className="flex flex-col gap-5 rounded-2xl border border-line bg-surface p-6 shadow-[var(--shadow-card)]"
     >
-      <input name="title" defaultValue={initial?.title} placeholder="Title" className="border p-2 rounded" />
-      <textarea name="description" defaultValue={initial?.description} placeholder="Description" rows={4} className="border p-2 rounded" />
-      <input name="priceDollars" defaultValue={initial?.priceDollars} placeholder="Price (USD, e.g. 12.50)" className="border p-2 rounded" />
-      <select name="categoryId" defaultValue={initial?.categoryId ?? ""} className="border p-2 rounded">
-        <option value="">Select a category…</option>
-        {categories.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
-      </select>
-      <select name="conditionId" defaultValue={initial?.conditionId ?? ""} className="border p-2 rounded">
-        <option value="">Select a condition…</option>
-        {conditions.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
-      </select>
-      <select name="sizeId" defaultValue={initial?.sizeId ?? ""} className="border p-2 rounded">
-        <option value="">Size (optional)…</option>
-        {sizes.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
-      </select>
-      <input name="brand" defaultValue={initial?.brand} placeholder="Brand (optional)" className="border p-2 rounded" />
-      <ImageUploader value={images} onChange={setImages} />
-      {error && <p className="text-sm text-red-600">{error}</p>}
-      <div className="flex gap-2">
-        <button type="submit" disabled={pending} className="rounded bg-zinc-200 px-3 py-2">
+      <div>
+        <Label htmlFor="title">Title</Label>
+        <Input id="title" name="title" defaultValue={initial?.title} placeholder="e.g. Floral linen romper" />
+      </div>
+
+      <div>
+        <Label htmlFor="description">Description</Label>
+        <Textarea
+          id="description"
+          name="description"
+          defaultValue={initial?.description}
+          placeholder="Condition notes, fit, story…"
+          rows={4}
+        />
+      </div>
+
+      <div>
+        <Label htmlFor="priceDollars">Price (USD)</Label>
+        <Input id="priceDollars" name="priceDollars" defaultValue={initial?.priceDollars} placeholder="12.50" inputMode="decimal" />
+      </div>
+
+      <div className="grid gap-5 sm:grid-cols-2">
+        <div>
+          <Label htmlFor="categoryId">Category</Label>
+          <Select id="categoryId" name="categoryId" defaultValue={initial?.categoryId ?? ""}>
+            <option value="">Select a category…</option>
+            {categories.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
+          </Select>
+        </div>
+        <div>
+          <Label htmlFor="conditionId">Condition</Label>
+          <Select id="conditionId" name="conditionId" defaultValue={initial?.conditionId ?? ""}>
+            <option value="">Select a condition…</option>
+            {conditions.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
+          </Select>
+        </div>
+        <div>
+          <Label htmlFor="sizeId">Size</Label>
+          <Select id="sizeId" name="sizeId" defaultValue={initial?.sizeId ?? ""}>
+            <option value="">Size (optional)…</option>
+            {sizes.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
+          </Select>
+        </div>
+        <div>
+          <Label htmlFor="brand">Brand</Label>
+          <Input id="brand" name="brand" defaultValue={initial?.brand} placeholder="Brand (optional)" />
+        </div>
+      </div>
+
+      <div>
+        <Label>Photos</Label>
+        <ImageUploader value={images} onChange={setImages} />
+      </div>
+
+      {error && <FieldError>{error}</FieldError>}
+
+      <div className="flex flex-wrap gap-3 pt-1">
+        <Button type="submit" variant="secondary" disabled={pending}>
           {pending ? "Saving…" : "Save draft"}
-        </button>
-        <button type="button" disabled={pending} onClick={() => run(true)} className="rounded bg-pink-600 px-3 py-2 text-white">
+        </Button>
+        <Button type="button" variant="primary" disabled={pending} onClick={() => run(true)}>
           Submit for review
-        </button>
+        </Button>
       </div>
     </form>
   );

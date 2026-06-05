@@ -3,6 +3,8 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { approveListing, rejectListing } from "@/app/admin/actions";
+import { Input, FieldError } from "@/components/ui/inputs";
+import { Button } from "@/components/ui/Button";
 
 export function CurationActions({ listingId }: { listingId: string }) {
   const router = useRouter();
@@ -29,22 +31,22 @@ export function CurationActions({ listingId }: { listingId: string }) {
   }
 
   return (
-    <div className="mt-2 flex flex-col gap-2">
-      <button onClick={approve} disabled={pending} className="self-start rounded bg-green-600 px-3 py-1 text-white">
-        Approve
-      </button>
+    <div className="flex flex-col gap-3">
       <div className="flex gap-2">
-        <input
+        <Input
           value={reason}
           onChange={(e) => setReason(e.target.value)}
-          placeholder="Reason for rejection"
-          className="flex-1 rounded border p-1"
+          placeholder="Reason for rejection (required to reject)"
+          className="flex-1"
         />
-        <button onClick={reject} disabled={pending} className="rounded bg-red-600 px-3 py-1 text-white">
+        <Button onClick={reject} disabled={pending} variant="danger" size="sm">
           Reject
-        </button>
+        </Button>
       </div>
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      <Button onClick={approve} disabled={pending} variant="sage" size="sm" className="self-start">
+        Approve &amp; publish
+      </Button>
+      {error && <FieldError>{error}</FieldError>}
     </div>
   );
 }

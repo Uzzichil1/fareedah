@@ -5,6 +5,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signupSchema, type SignupInput } from "@/lib/validation/auth";
 import { signupAction } from "@/app/actions/auth";
+import { Input, Label, FieldError } from "@/components/ui/inputs";
+import { Button } from "@/components/ui/Button";
 
 export function SignupForm() {
   const [serverError, setServerError] = useState<string | null>(null);
@@ -24,26 +26,30 @@ export function SignupForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3">
-      <input {...register("name")} placeholder="Name" className="border p-2 rounded" />
-      {errors.name && <p className="text-sm text-red-600">{errors.name.message}</p>}
+    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+      <div>
+        <Label htmlFor="name">Name</Label>
+        <Input id="name" {...register("name")} placeholder="Your name" />
+        <FieldError>{errors.name?.message}</FieldError>
+      </div>
 
-      <input {...register("email")} placeholder="Email" className="border p-2 rounded" />
-      {errors.email && <p className="text-sm text-red-600">{errors.email.message}</p>}
+      <div>
+        <Label htmlFor="email">Email</Label>
+        <Input id="email" type="email" {...register("email")} placeholder="you@example.com" />
+        <FieldError>{errors.email?.message}</FieldError>
+      </div>
 
-      <input
-        {...register("password")}
-        type="password"
-        placeholder="Password"
-        className="border p-2 rounded"
-      />
-      {errors.password && <p className="text-sm text-red-600">{errors.password.message}</p>}
+      <div>
+        <Label htmlFor="password">Password</Label>
+        <Input id="password" {...register("password")} type="password" placeholder="••••••••" />
+        <FieldError>{errors.password?.message}</FieldError>
+      </div>
 
-      {serverError && <p className="text-sm text-red-600">{serverError}</p>}
+      {serverError && <FieldError>{serverError}</FieldError>}
 
-      <button disabled={pending} className="bg-pink-600 text-white p-2 rounded">
+      <Button type="submit" disabled={pending} className="mt-1 w-full">
         {pending ? "Creating account…" : "Sign up"}
-      </button>
+      </Button>
     </form>
   );
 }

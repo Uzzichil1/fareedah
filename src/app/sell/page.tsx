@@ -4,8 +4,30 @@ import Image from "next/image";
 import { prisma } from "@/lib/db";
 import { requireSeller } from "@/lib/dal";
 import { centsToDollars } from "@/lib/money";
+import { SiteHeader } from "@/components/site/SiteHeader";
+import { Badge } from "@/components/ui/Badge";
+import { buttonClasses } from "@/components/ui/Button";
 
 export const metadata: Metadata = { title: "Your listings" };
+
+type ListingStatus =
+  | "DRAFT"
+  | "PENDING_REVIEW"
+  | "APPROVED"
+  | "REJECTED"
+  | "LIVE"
+  | "SOLD"
+  | "ARCHIVED";
+
+const STATUS: Record<ListingStatus, { tone: "neutral" | "sage" | "rose" | "danger" | "ink"; label: string }> = {
+  DRAFT: { tone: "neutral", label: "Draft" },
+  PENDING_REVIEW: { tone: "rose", label: "In review" },
+  APPROVED: { tone: "sage", label: "Approved" },
+  REJECTED: { tone: "danger", label: "Rejected" },
+  LIVE: { tone: "sage", label: "Live" },
+  SOLD: { tone: "ink", label: "Sold" },
+  ARCHIVED: { tone: "neutral", label: "Archived" },
+};
 
 export default async function SellDashboardPage() {
   const { storefrontId } = await requireSeller();
@@ -16,35 +38,65 @@ export default async function SellDashboardPage() {
   });
 
   return (
-    <main className="mx-auto max-w-3xl p-6">
-      <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Your listings</h1>
-        <Link href="/sell/listings/new" className="rounded bg-pink-600 px-3 py-2 text-white">
-          New listing
-        </Link>
-      </div>
-      {listings.length === 0 ? (
-        <p className="text-zinc-600">No listings yet. Create your first one.</p>
-      ) : (
-        <ul className="divide-y">
-          {listings.map((l) => (
-            <li key={l.id} className="flex items-center gap-3 py-3">
-              {l.images[0] ? (
-                <Image src={l.images[0].url} alt="" width={48} height={48} className="rounded object-cover" />
-              ) : (
-                <div className="h-12 w-12 rounded bg-zinc-100" />
-              )}
-              <div className="flex-1">
-                <Link href={`/sell/listings/${l.id}/edit`} className="font-medium hover:underline">
-                  {l.title}
-                </Link>
-                <p className="text-sm text-zinc-500">${centsToDollars(l.priceCents)}</p>
-              </div>
-              <span className="rounded bg-zinc-100 px-2 py-1 text-xs">{l.status}</span>
-            </li>
-          ))}
-        </ul>
-      )}
-    </main>
+    <>
+      <SiteHeader />
+
+      <main className="mx-auto w-full max-w-3xl px-5 py-10 sm:px-8">
+        <div className="mb-8 flex items-end justify-between gap-4">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-sage">
+              Your closet
+            </p>
+            <h1 className="mt-1 font-display text-3xl text-ink">Listings</h1>
+          </div>
+          <Link href="/sell/listings/new" className={buttonClasses("primary", "md")}>
+            + New listing
+          </Link>
+        </div>
+
+        {listings.length === 0 ? (
+          <div className="grid place-items-center rounded-[20px] border border-dashed border-line bg-surface/60 px-6 py-16 text-center">
+            <p className="font-display text-xl italic text-rose">Your closet is empty.</p>
+            <p className="mt-2 text-sm text-ink-soft">Create your first listing to get started.</p>
+          </div>
+        ) : (
+          <ul className="overflow-hidden rounded-2xl border border-line bg-surface shadow-[var(--shadow-card)]">
+            {listings.map((l) => {
+              const s = STATUS[l.status];
+              return (
+                <li
+                  key={l.id}
+                  className="flex items-center gap-4 border-b border-line px-4 py-3 last:border-b-0"
+                >
+                  {l.images[0] ? (
+                    <Image
+                      src={l.images[0].url}
+                      alt=""
+                      width={52}
+                      height={52}
+                      className="h-13 w-13 rounded-lg object-cover ring-1 ring-line"
+                    />
+                  ) : (
+                    <div className="grid h-13 w-13 place-items-center rounded-lg bg-blush/50">
+                      <span className="font-display text-sm italic text-rose-soft">tk</span>
+                    </div>
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <Link
+                      href={`/sell/listings/${l.id}/edit`}
+                      className="block truncate font-medium text-ink transition-colors hover:text-rose"
+                    >
+                      {l.title}
+                    </Link>
+                    <p className="text-sm text-ink-soft">${centsToDollars(l.priceCents)}</p>
+                  </div>
+                  <Badge tone={s.tone}>{s.label}</Badge>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </main>
+    </>
   );
 }

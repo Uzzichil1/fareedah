@@ -1,8 +1,43 @@
 @import "tailwindcss";
 
-@theme inline {
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* ----------------------------------------------------------------------------
+   TinyKloset — "Soft editorial boutique"
+   Warm paper, espresso ink, dusty rose + muted sage. Fraunces display over a
+   warm Mulish body. Tokens live here (Tailwind v4 CSS-first config).
+---------------------------------------------------------------------------- */
+
+@theme {
+  /* Type — theme tokens reference next/font vars under distinct names (no cycle) */
+  --font-display: var(--font-fraunces), Georgia, serif;
+  --font-sans: var(--font-mulish), system-ui, sans-serif;
+
+  /* Canvas + surfaces */
+  --color-paper: #f4ece1; /* warm page background */
+  --color-surface: #fdfaf6; /* cards, raised fills */
+  --color-overlay: #fffdfa;
+
+  /* Ink — ink-soft darkened to ~4.6:1 on paper for AA body text */
+  --color-ink: #2c2722; /* espresso near-black */
+  --color-ink-soft: #6f6256; /* muted secondary text */
+  --color-line: #e7dccd; /* warm taupe hairlines */
+
+  /* Accents — sage darkened to clear AA on paper for the hero eyebrow */
+  --color-rose: #b56a5b; /* dusty clay-rose — display/large accent */
+  --color-rose-deep: #a1503f; /* AA-on-paper rose for small inline links */
+  --color-rose-soft: #d8a59b;
+  --color-blush: #f0ddd5; /* soft rose fill */
+  --color-sage: #5f6e54; /* muted sage — secondary accent (positive) */
+  --color-sage-soft: #dde3d2;
+
+  /* Status — a warm brick for errors/destructive, never a digital red */
+  --color-danger: #a8473b;
+  --color-danger-soft: #f1ddd7;
+
+  /* Soft, warm-tinted elevation */
+  --shadow-card: 0 1px 2px rgba(74, 56, 42, 0.04),
+    0 12px 28px -16px rgba(74, 56, 42, 0.22);
+  --shadow-lift: 0 2px 6px rgba(74, 56, 42, 0.06),
+    0 22px 44px -20px rgba(74, 56, 42, 0.3);
 }
 
 html {
@@ -10,5 +45,78 @@ html {
 }
 
 body {
-  font-family: var(--font-sans), system-ui, sans-serif;
+  font-family: var(--font-sans);
+  font-optical-sizing: auto;
+  /* Atmosphere: a faint warm radial wash so the paper never reads as flat. */
+  background-color: var(--color-paper);
+  background-image:
+    radial-gradient(120% 90% at 12% -8%, rgba(216, 165, 155, 0.16), transparent 55%),
+    radial-gradient(110% 80% at 100% 0%, rgba(221, 227, 210, 0.18), transparent 50%);
+  background-attachment: fixed;
+}
+
+/* Fine grain overlay — sits above the wash, below content, never intercepts
+   clicks. Keeps large warm fields from looking digitally clean. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.4;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+}
+
+/* Keep real content above the atmosphere layers. */
+body > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Display headings get optical sizing + tighter tracking by default. */
+.font-display {
+  font-feature-settings: "ss01";
+  letter-spacing: -0.01em;
+}
+
+::selection {
+  background: var(--color-blush);
+  color: var(--color-ink);
+}
+
+/* Form controls inherit the warm type instead of the browser default. */
+input,
+select,
+button,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+/* ---- Motion ---------------------------------------------------------------
+   One orchestrated entrance: a soft rise-and-fade, staggered per card via an
+   inline animation-delay. High-impact on load, quiet thereafter. */
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.rise-in {
+  animation: rise-in 0.7s cubic-bezier(0.22, 0.68, 0.2, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise-in {
+    animation: none;
+  }
+  body {
+    background-attachment: scroll;
+  }
 }
