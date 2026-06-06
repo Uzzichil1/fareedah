@@ -39,16 +39,16 @@ export function listedTotalCents(items: { priceCents: number; isLive: boolean }[
   return items.reduce((sum, i) => (i.isLive ? sum + i.priceCents : sum), 0);
 }
 
-/** Validate a proposed offer (cents) against the live listed total.
+/** Validate a proposed offer (cents) against the live listed total (totalCents).
  *  Returns a user-facing message, or null when the offer is acceptable. */
-export function offerError(offerCents: number, listedTotalCents: number): string | null {
+export function offerError(offerCents: number, totalCents: number): string | null {
   if (!Number.isInteger(offerCents) || offerCents <= 0) {
     return "Enter an offer above $0.";
   }
-  if (listedTotalCents <= 0) {
+  if (totalCents <= 0) {
     return "This bundle has no available items.";
   }
-  if (offerCents > listedTotalCents) {
+  if (offerCents > totalCents) {
     return "Your offer can't be more than the listed total.";
   }
   return null;
