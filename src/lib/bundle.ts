@@ -7,6 +7,23 @@ export type BundleStatus =
   | "DECLINED"
   | "CHECKED_OUT";
 
+/** All statuses that represent an active (non-checked-out) bundle, including
+ *  declined ones still visible in the buyer's bag. */
+export const ACTIVE_BUNDLE_STATUSES = [
+  "OPEN",
+  "SUBMITTED",
+  "ACCEPTED",
+  "DECLINED",
+] as const satisfies readonly BundleStatus[];
+
+/** Subset of statuses where a bundle is purchasable / has meaningful bag weight.
+ *  Excludes DECLINED (offer gone) and CHECKED_OUT. Used for the bag item count. */
+export const PURCHASABLE = [
+  "OPEN",
+  "SUBMITTED",
+  "ACCEPTED",
+] as const satisfies readonly BundleStatus[];
+
 export type BundleAction =
   | "addItem"
   | "removeItem"

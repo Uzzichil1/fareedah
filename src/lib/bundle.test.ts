@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { canTransition, nextStatus, listedTotalCents, offerError } from "./bundle";
+import { canTransition, nextStatus, listedTotalCents, offerError, ACTIVE_BUNDLE_STATUSES, PURCHASABLE } from "./bundle";
 
 describe("canTransition / nextStatus", () => {
   it("allows item edits only from OPEN or DECLINED, landing on OPEN", () => {
@@ -42,6 +42,23 @@ describe("listedTotalCents", () => {
   it("is 0 for no live items", () => {
     expect(listedTotalCents([{ priceCents: 5000, isLive: false }])).toBe(0);
     expect(listedTotalCents([])).toBe(0);
+  });
+});
+
+describe("ACTIVE_BUNDLE_STATUSES / PURCHASABLE constants", () => {
+  it("PURCHASABLE excludes DECLINED and CHECKED_OUT", () => {
+    expect(PURCHASABLE).not.toContain("DECLINED");
+    expect(PURCHASABLE).not.toContain("CHECKED_OUT");
+    expect(PURCHASABLE).toContain("OPEN");
+    expect(PURCHASABLE).toContain("SUBMITTED");
+    expect(PURCHASABLE).toContain("ACCEPTED");
+  });
+  it("ACTIVE_BUNDLE_STATUSES includes DECLINED but excludes CHECKED_OUT", () => {
+    expect(ACTIVE_BUNDLE_STATUSES).toContain("DECLINED");
+    expect(ACTIVE_BUNDLE_STATUSES).not.toContain("CHECKED_OUT");
+    expect(ACTIVE_BUNDLE_STATUSES).toContain("OPEN");
+    expect(ACTIVE_BUNDLE_STATUSES).toContain("SUBMITTED");
+    expect(ACTIVE_BUNDLE_STATUSES).toContain("ACCEPTED");
   });
 });
 

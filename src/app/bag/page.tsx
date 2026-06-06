@@ -3,7 +3,7 @@ import Link from "next/link";
 import { verifySession } from "@/lib/dal";
 import { prisma } from "@/lib/db";
 import { centsToDollars } from "@/lib/money";
-import { listedTotalCents } from "@/lib/bundle";
+import { listedTotalCents, ACTIVE_BUNDLE_STATUSES } from "@/lib/bundle";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { Badge } from "@/components/ui/Badge";
 import { BagControls } from "@/components/bag/BagControls";
@@ -21,7 +21,7 @@ export default async function BagPage() {
   const { userId } = await verifySession();
 
   const bundles = await prisma.bundle.findMany({
-    where: { buyerId: userId, status: { in: ["OPEN", "SUBMITTED", "ACCEPTED", "DECLINED"] } },
+    where: { buyerId: userId, status: { in: [...ACTIVE_BUNDLE_STATUSES] } },
     orderBy: { updatedAt: "desc" },
     include: {
       storefront: { select: { name: true, slug: true } },
@@ -108,7 +108,7 @@ export default async function BagPage() {
                     <span className="text-sm text-ink-soft">Listed total</span>
                     <span className="font-display text-lg text-ink">${centsToDollars(listed)}</span>
                   </div>
-                  {b.offerCents != null && (
+                  {b.offerCents != null && (b.status === "SUBMITTED" || b.status === "ACCEPTED") && (
                     <div className="mt-1 flex items-baseline justify-between">
                       <span className="text-sm text-ink-soft">Your offer</span>
                       <span className="font-display text-lg text-rose">${centsToDollars(b.offerCents)}</span>
