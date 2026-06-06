@@ -273,6 +273,7 @@ model Bundle {
   buyerId      String
   storefrontId String
   status       BundleStatus @default(OPEN)
+  offerCents   Int?         // null = no offer (buy-now). Proposed total on SUBMITTED; agreed total on ACCEPTED.
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
 
