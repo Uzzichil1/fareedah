@@ -58,8 +58,8 @@ export function ListingForm({ listingId, categories, conditions, sizes, initial 
       } else {
         const r = await createListing(payload);
         if ("error" in r) return setError(r.error);
-        id = r.id;
-        setCreatedId(r.id);
+        id = r.id;           // local var: the submitListing(id) call below runs this same invocation (setState is async)
+        setCreatedId(r.id);  // persist the new draft id so a retry updates it instead of creating another
       }
       if (submit && id) {
         const r = await submitListing(id);
