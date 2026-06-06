@@ -1,11 +1,25 @@
 import Link from "next/link";
+import { auth } from "@/auth";
+import { prisma } from "@/lib/db";
 
 /**
  * Global top bar: the brand wordmark plus primary navigation. Translucent over
  * the warm paper, with a hairline rule and backdrop blur so content scrolls
  * softly beneath it. Real routes only — no dead links.
  */
-export function SiteHeader() {
+export async function SiteHeader() {
+  const session = await auth();
+  let bagCount = 0;
+  if (session?.user?.id) {
+    bagCount = await prisma.bundleItem.count({
+      where: {
+        bundle: {
+          buyerId: session.user.id,
+          status: { in: ["OPEN", "SUBMITTED", "ACCEPTED", "DECLINED"] },
+        },
+      },
+    });
+  }
   return (
     <header className="sticky top-0 z-30 border-b border-line/70 bg-paper/80 backdrop-blur-md">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-4 sm:px-8">
@@ -34,6 +48,31 @@ export function SiteHeader() {
             className="rounded-full border border-line bg-surface px-4 py-2 text-xs font-semibold tracking-wide text-ink shadow-[var(--shadow-card)] transition-colors hover:border-rose-soft hover:text-rose sm:hidden"
           >
             Sell
+          </Link>
+          <Link
+            href="/bag"
+            aria-label="Bag"
+            className="relative grid h-10 w-10 place-items-center rounded-full text-ink-soft transition-colors hover:bg-blush hover:text-ink"
+          >
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M6 7h12l-1 13H7L6 7z" />
+              <path d="M9 7a3 3 0 0 1 6 0" />
+            </svg>
+            {bagCount > 0 && (
+              <span className="absolute -right-0.5 -top-0.5 grid h-4 min-w-4 place-items-center rounded-full bg-rose px-1 text-[10px] font-semibold text-paper">
+                {bagCount}
+              </span>
+            )}
           </Link>
           <Link
             href="/account"
