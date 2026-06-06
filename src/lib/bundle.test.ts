@@ -47,6 +47,7 @@ describe("listedTotalCents", () => {
 
 describe("ACTIVE_BUNDLE_STATUSES / PURCHASABLE constants", () => {
   it("PURCHASABLE excludes DECLINED and CHECKED_OUT", () => {
+    expect(PURCHASABLE).toHaveLength(3);
     expect(PURCHASABLE).not.toContain("DECLINED");
     expect(PURCHASABLE).not.toContain("CHECKED_OUT");
     expect(PURCHASABLE).toContain("OPEN");
@@ -54,6 +55,7 @@ describe("ACTIVE_BUNDLE_STATUSES / PURCHASABLE constants", () => {
     expect(PURCHASABLE).toContain("ACCEPTED");
   });
   it("ACTIVE_BUNDLE_STATUSES includes DECLINED but excludes CHECKED_OUT", () => {
+    expect(ACTIVE_BUNDLE_STATUSES).toHaveLength(4);
     expect(ACTIVE_BUNDLE_STATUSES).toContain("DECLINED");
     expect(ACTIVE_BUNDLE_STATUSES).not.toContain("CHECKED_OUT");
     expect(ACTIVE_BUNDLE_STATUSES).toContain("OPEN");
