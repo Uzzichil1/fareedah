@@ -169,7 +169,9 @@ export async function submitListing(id: string): Promise<ActionResult> {
     images: listing.images.map((i) => ({ url: i.url, publicId: i.publicId ?? undefined, position: i.position })),
   });
   if (!check.success) {
-    return { error: "Add a description, a price above $0, and at least one image before submitting." };
+    // Surface the specific failing rule(s) rather than a lumped, misleading message.
+    const messages = [...new Set(check.error.issues.map((i) => i.message))];
+    return { error: messages.join(" ") };
   }
   await prisma.listing.update({
     where: { id },
