@@ -5,6 +5,8 @@ import { prisma } from "@/lib/db";
 import { centsToDollars } from "@/lib/money";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { Badge } from "@/components/ui/Badge";
+import { auth } from "@/auth";
+import { AddToBagButton } from "@/components/bag/AddToBagButton";
 
 export default async function ListingDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -16,12 +18,17 @@ export default async function ListingDetailPage({ params }: { params: Promise<{ 
       category: { select: { name: true } },
       condition: { select: { name: true } },
       size: { select: { label: true } },
-      storefront: { select: { name: true, slug: true } },
+      storefront: { select: { name: true, slug: true, userId: true } },
     },
   });
   if (!listing) notFound();
 
   const [hero, ...rest] = listing.images;
+
+  const session = await auth();
+  const viewerId = session?.user?.id ?? null;
+  // Buyers (signed in) who don't own this listing can add it to a bag.
+  const canAddToBag = !!viewerId && viewerId !== listing.storefront.userId;
 
   return (
     <>
@@ -87,6 +94,12 @@ export default async function ListingDetailPage({ params }: { params: Promise<{ 
             <p className="mt-3 font-display text-2xl text-rose">
               ${centsToDollars(listing.priceCents)}
             </p>
+
+            {canAddToBag && (
+              <div className="mt-5">
+                <AddToBagButton listingId={listing.id} />
+              </div>
+            )}
 
             <div className="mt-5 flex flex-wrap gap-2">
               <Badge tone="neutral">{listing.category.name}</Badge>
