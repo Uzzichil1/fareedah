@@ -41,7 +41,8 @@ export async function addToBundle(listingId: string): Promise<ActionResult> {
         data: { buyerId: userId, storefrontId: listing.storefrontId, status: "OPEN" },
         select: { id: true },
       });
-    } catch {
+    } catch (e) {
+      if ((e as { code?: string }).code !== "P2002") throw e;
       bundle = await prisma.bundle.findFirstOrThrow({
         where: { buyerId: userId, storefrontId: listing.storefrontId, status: "OPEN" },
         select: { id: true },
