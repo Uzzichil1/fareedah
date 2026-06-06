@@ -29,12 +29,27 @@ export async function addToBundle(listingId: string): Promise<ActionResult> {
     return { error: "You can't add your own item." };
   }
 
-  // Find-or-create the OPEN bundle. The partial unique index (Task 1) makes the
-  // race safe: a losing concurrent create throws, and we re-read the winner.
+  // Reuse the buyer's editable bundle for this seller. Prefer an existing OPEN
+  // cart; otherwise revive a DECLINED one to OPEN (matches the state machine in
+  // src/lib/bundle.ts: addItem from OPEN|DECLINED -> OPEN). The partial unique
+  // index guarantees at most one OPEN per (buyer, seller).
   let bundle = await prisma.bundle.findFirst({
     where: { buyerId: userId, storefrontId: listing.storefrontId, status: "OPEN" },
     select: { id: true },
   });
+  if (!bundle) {
+    const declined = await prisma.bundle.findFirst({
+      where: { buyerId: userId, storefrontId: listing.storefrontId, status: "DECLINED" },
+      select: { id: true },
+    });
+    if (declined) {
+      await prisma.bundle.update({
+        where: { id: declined.id },
+        data: { status: "OPEN", offerCents: null },
+      });
+      bundle = declined;
+    }
+  }
   if (!bundle) {
     try {
       bundle = await prisma.bundle.create({
