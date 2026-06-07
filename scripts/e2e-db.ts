@@ -24,10 +24,10 @@ import "dotenv/config";
 import { prisma } from "../src/lib/db";
 import { hashPassword } from "../src/lib/password";
 import type { Role } from "../src/generated/prisma/client";
-
-/** Shared fixture password — satisfies the signup/login zod rule (min 8,
- *  ≥1 letter, ≥1 number, ≥1 special char). 9 chars. */
-export const E2E_PASSWORD = "E2eTest!1";
+// E2E_PASSWORD (login plaintext) and RESULT_MARKER (the stdout-result contract
+// shared with `e2e/support/proc.ts`) both live in the Prisma-free constants
+// module — single source of truth, so they can't drift from the reader side.
+import { E2E_PASSWORD, RESULT_MARKER } from "../e2e/support/constants";
 
 const EMAIL_NAMESPACE = { startsWith: "e2e+", endsWith: "@test.tk" } as const;
 /** Relation filter reused everywhere an `<e2e user>` predicate is needed. */
@@ -235,7 +235,7 @@ async function main() {
   const result = await dispatch(name, args);
   // The marker makes the "last JSON line" contract explicit and easy to find
   // even if Prisma logs warnings/errors around it.
-  console.log("__E2E_DB_RESULT__" + JSON.stringify(result));
+  console.log(RESULT_MARKER + JSON.stringify(result));
 }
 
 // Only run the CLI when executed directly (so the selftest / e2e:clean can

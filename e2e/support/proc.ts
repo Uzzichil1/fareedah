@@ -10,6 +10,7 @@
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import path from "node:path";
+import { RESULT_MARKER } from "./constants";
 
 const execFileAsync = promisify(execFile);
 
@@ -20,8 +21,6 @@ const execFileAsync = promisify(execFile);
 //     (which in turn trips Node's "unescaped args" deprecation warning).
 const TSX_CLI = path.join(process.cwd(), "node_modules", "tsx", "dist", "cli.mjs");
 const E2E_DB_SCRIPT = path.join(process.cwd(), "scripts", "e2e-db.ts");
-
-const RESULT_MARKER = "__E2E_DB_RESULT__";
 
 /**
  * Runs `scripts/e2e-db.ts <command> <jsonArgs>` in a child process and

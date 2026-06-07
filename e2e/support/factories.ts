@@ -7,11 +7,10 @@
 // `globalTeardown`.
 import { runE2EDb } from "./proc";
 
-/** Shared fixture password — satisfies the signup/login zod rule (min 8
- *  chars, ≥1 letter, ≥1 number, ≥1 special char). Must match the hash stored
- *  by `createUser` in `scripts/e2e-db.ts` so the real `/login` credentials
- *  provider can authenticate fixtures. */
-export const E2E_PASSWORD = "E2eTest!1";
+// Re-exported from the shared constants module so existing importers
+// (`auth.ts`, `support.spec.ts`) keep importing `E2E_PASSWORD` from here while
+// the literal itself lives in exactly one place (see `constants.ts`).
+export { E2E_PASSWORD } from "./constants";
 
 export type E2ERole = "USER" | "ADMIN";
 
