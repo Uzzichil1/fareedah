@@ -27,6 +27,9 @@ export default defineConfig({
   // single worker, never in parallel.
   fullyParallel: false,
   workers: 1,
+  // `retries` is intentionally left at the default of 0 for the same reason as
+  // the single worker: re-running a test that already wrote to the shared live
+  // DB risks double-inserts / unique-constraint collisions on the retry.
 
   reporter: "list",
 
@@ -34,13 +37,24 @@ export default defineConfig({
     // Allow overriding for ad-hoc runs against a different deployment, but
     // default to the local prod server started below (port 3000, see note).
     baseURL: process.env.E2E_BASE_URL ?? "http://localhost:3000",
+
+    // Failure-debugging affordances for later specs (B3-B6) that run against
+    // the live DB: capture a screenshot and a Playwright trace only when a test
+    // fails (not `on-first-retry` — retries are 0, so that would never fire).
+    screenshot: "only-on-failure",
+    trace: "retain-on-failure",
   },
 
   webServer: {
     // Build then start the production server. `next start` requires a build
     // to exist first; rebuilding on every run is slower but correct and
-    // avoids stale-build false negatives. `next start` defaults to port 3000.
-    command: "npm run build && npm run start",
+    // avoids stale-build false negatives. The port is pinned explicitly with
+    // `-p 3000` rather than relying on next's default, because `next start`
+    // honours an inherited `PORT` env var (default: 3000, env: PORT) — without
+    // the explicit flag, a stray `PORT` could silently move the server off 3000
+    // while `url`/`baseURL` below stay on 3000, breaking the health check (and
+    // auth — see the AUTH_URL note above).
+    command: "npm run build && npx next start -p 3000",
     url: "http://localhost:3000",
     // Locally, reuse a server that's already running on :3000 (e.g. `npm run
     // dev` or a previous `npm run start`) so we don't rebuild on every run.
