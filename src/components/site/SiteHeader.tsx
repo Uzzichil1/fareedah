@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
+import { PURCHASABLE } from "@/lib/bundle";
 
 /**
  * Global top bar: the brand wordmark plus primary navigation. Translucent over
@@ -15,8 +16,9 @@ export async function SiteHeader() {
       where: {
         bundle: {
           buyerId: session.user.id,
-          status: { in: ["OPEN", "SUBMITTED", "ACCEPTED", "DECLINED"] },
+          status: { in: [...PURCHASABLE] },
         },
+        listing: { status: "LIVE" },
       },
     });
   }

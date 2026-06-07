@@ -32,6 +32,7 @@ export function ListingForm({ listingId, categories, conditions, sizes, initial 
   const [images, setImages] = useState<UploadedImage[]>(initial?.images ?? []);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  const [createdId, setCreatedId] = useState<string | undefined>(listingId);
 
   // `submit=false` saves a draft; `submit=true` saves then submits for review.
   function run(submit: boolean) {
@@ -50,14 +51,15 @@ export function ListingForm({ listingId, categories, conditions, sizes, initial 
     };
     setError(null);
     startTransition(async () => {
-      let id = listingId;
+      let id = createdId ?? listingId;
       if (id) {
         const r = await updateListing(id, payload);
         if (r?.error) return setError(r.error);
       } else {
         const r = await createListing(payload);
         if ("error" in r) return setError(r.error);
-        id = r.id;
+        id = r.id;           // local var: the submitListing(id) call below runs this same invocation (setState is async)
+        setCreatedId(r.id);  // persist the new draft id so a retry updates it instead of creating another
       }
       if (submit && id) {
         const r = await submitListing(id);
