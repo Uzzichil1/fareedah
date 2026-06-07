@@ -22,6 +22,13 @@ import { defineConfig } from "@playwright/test";
 export default defineConfig({
   testDir: "e2e",
 
+  // The suite mutates a shared, live database. Specs namespace every fixture
+  // they create under `e2e+...@test.tk` (see `e2e/support/factories.ts`) and
+  // this removes them all once the full run completes — belt-and-braces on
+  // top of any per-spec cleanup, and the last line of defense against
+  // killed-run residue (see also `npm run e2e:clean`).
+  globalTeardown: "./e2e/global-teardown.ts",
+
   // The suite mutates a shared, live database (no per-test isolation/fixtures
   // yet — those land in a later task), so tests must run sequentially in a
   // single worker, never in parallel.
