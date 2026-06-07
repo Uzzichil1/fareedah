@@ -1,6 +1,7 @@
 import { test, expect } from "@playwright/test";
-import { createUser, createStorefront, createLiveListing, createBundleWithItem } from "./support/factories";
+import { createUser, createStorefront, createLiveListing, createBundleWithItem, E2E_PASSWORD } from "./support/factories";
 import { cleanupE2EData, countE2EData } from "./support/cleanup";
+import { signIn } from "./support/auth";
 
 /**
  * Permanent regression guard for the B2 data-isolation layer (kept rather
@@ -63,4 +64,32 @@ test("factories create namespaced fixtures and cleanupE2EData proves zero residu
   const after = await countE2EData();
   console.log("[selftest] after cleanup (zero-residue check):", after);
   expect(after).toEqual({ bundleItems: 0, bundles: 0, listings: 0, storefronts: 0, users: 0 });
+});
+
+/**
+ * Permanent regression guard for `e2e/support/auth.ts`'s `signIn` helper —
+ * the other listed B2 deliverable that the zero-residue test above never
+ * exercises (it only drives factories/cleanup, never the browser/login UI).
+ *
+ * Every later spec (B3-B6) authenticates via `signIn`/`signInAs`, so this is
+ * the cheapest possible place to catch a broken selector or redirect target:
+ * create a namespaced fixture user via the factory (whose password hash is
+ * `E2E_PASSWORD`), drive the real `/login` form, and assert we land on
+ * `/account` — proving the email/password fields resolve via their labels and
+ * the credentials provider accepts a factory-created user end to end.
+ *
+ * Cleans up its own fixture row regardless of pass/fail (`test.afterEach`
+ * would also work, but a single self-contained test keeps this file's
+ * "creates → asserts → cleans up" shape consistent throughout).
+ */
+test("signIn drives the real /login UI and lands on /account for a factory user", async ({ page }) => {
+  const user = await createUser({ role: "USER", emailTag: "selftest-signin" });
+  try {
+    await signIn(page, user.email, E2E_PASSWORD);
+    await expect(page).toHaveURL(/\/account(?:[/?#]|$)/);
+  } finally {
+    const deleted = await cleanupE2EData();
+    console.log("[selftest:signIn] cleanupE2EData deleted:", deleted);
+    expect(await countE2EData()).toEqual({ bundleItems: 0, bundles: 0, listings: 0, storefronts: 0, users: 0 });
+  }
 });
