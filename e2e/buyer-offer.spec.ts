@@ -118,7 +118,11 @@ test("buyer bags two items into one bundle, gets an over-total offer rejected th
   await expect(page.getByText(itemATitle)).toBeVisible();
   await expect(page.getByText(itemBTitle)).toBeVisible();
   await page.getByRole("button", { name: /accept offer/i }).click();
-  await expect(page.locator("main > ul > li")).toHaveCount(0);
+  // Same queue-leave pattern as admin.spec (server action → router.refresh() →
+  // row leaves the list). 15s of round-trip-latency headroom over the 5s expect
+  // default, since the accept action + refresh round-trip against the pooled
+  // live DB can spike under contention.
+  await expect(page.locator("main > ul > li")).toHaveCount(0, { timeout: 15_000 });
 
   // === Buyer again (identity switch back) ===
   await page.context().clearCookies();

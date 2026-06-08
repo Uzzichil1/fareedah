@@ -23,6 +23,17 @@ import { expectZeroResidue } from "./support/expect-cleanup";
 test.afterAll(() => expectZeroResidue("admin.spec"));
 
 test("admin approves one PENDING_REVIEW listing (→ LIVE on /) and rejects another with a reason (→ seller sees it on edit)", async ({ page }) => {
+  // ROOT CAUSE of this spec's flake: the per-test budget, NOT the assertion.
+  // The seed below makes FIVE sequential `runE2EDb` calls — each spawns a fresh
+  // `tsx` child process (see support/proc.ts) and writes to the pooled live DB,
+  // so seeding alone runs ~20s INSIDE the test body (it counts against the
+  // budget). Add the sign-in + ~3 navigations + the ~3s approve action and a
+  // slow run lands right at Playwright's default 30s, killing whatever step is
+  // in flight (usually the first `toHaveCount(0)`) and leaving a misleading
+  // trace. 60s ≈ 2× the observed worst case. This mirrors buyer-offer.spec.ts,
+  // which already carries the same override for the same reason.
+  test.setTimeout(60_000);
+
   const stamp = Date.now();
   const approveTitle = `E2E-Approve-${stamp}`;
   const rejectTitle = `E2E-Reject-${stamp}`;
@@ -48,7 +59,11 @@ test("admin approves one PENDING_REVIEW listing (→ LIVE on /) and rejects anot
   await approveCard.getByRole("button", { name: /approve & publish/i }).click();
   // `router.refresh()` re-fetches the PENDING_REVIEW queue — the now-LIVE
   // listing leaves it. `toHaveCount(0)` retries until the refresh settles.
-  await expect(page.locator("main ul > li", { hasText: approveTitle })).toHaveCount(0);
+  // 15s (vs the 5s expect default): the approve server action + `router.refresh()`
+  // round-trip against the pooled live DB measured ~2.8s in the trace and can
+  // spike under pooler contention. This is round-trip-latency headroom, not the
+  // primary fix (that's the test.setTimeout above).
+  await expect(page.locator("main ul > li", { hasText: approveTitle })).toHaveCount(0, { timeout: 15_000 });
 
   // --- Step 4: Confirm it now appears on `/` as LIVE (title search avoids
   //         pagination/order flakiness). ---
@@ -60,7 +75,8 @@ test("admin approves one PENDING_REVIEW listing (→ LIVE on /) and rejects anot
   const rejectCard = page.locator("main ul > li", { hasText: rejectTitle });
   await rejectCard.getByPlaceholder("Reason for rejection (required to reject)").fill(reason);
   await rejectCard.getByRole("button", { name: /^reject$/i }).click();
-  await expect(page.locator("main ul > li", { hasText: rejectTitle })).toHaveCount(0);
+  // Same round-trip-latency headroom as the approve assertion above.
+  await expect(page.locator("main ul > li", { hasText: rejectTitle })).toHaveCount(0, { timeout: 15_000 });
 
   // --- Step 6: Switch identity admin → seller (clear cookies, sign in again). ---
   await page.context().clearCookies();
