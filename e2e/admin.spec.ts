@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
-import { createUser, createStorefront, createLiveListing, E2E_PASSWORD } from "./support/factories";
+import { createUser, createStorefront, createLiveListing } from "./support/factories";
+import { E2E_PASSWORD } from "./support/constants";
 import { signIn } from "./support/auth";
 import { expectZeroResidue } from "./support/expect-cleanup";
 

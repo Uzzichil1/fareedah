@@ -109,6 +109,10 @@ test("buyer bags two items into one bundle, gets an over-total offer rejected th
   //         "Add to bag" button. This realizes the symmetric "a buyer cannot
   //         add their own listing" assertion via the listing's owner. ---
   await page.goto(`/listings/${listingA.id}`);
+  // Positive anchor first: confirm THIS listing's detail page actually rendered
+  // (the title is its <h1>), so the negative check below can't pass vacuously
+  // on a 404, a /login redirect, or the wrong listing.
+  await expect(page.getByRole("heading", { name: itemATitle })).toBeVisible();
   await expect(page.getByRole("button", { name: /add to bag/i })).toHaveCount(0);
 
   // --- Step 8: Accept the offer on `/sell/offers` (one offer row, shows the
