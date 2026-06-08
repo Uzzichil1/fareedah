@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { E2E_PASSWORD } from "./support/constants";
-import { cleanupE2EData, countE2EData } from "./support/cleanup";
+import { expectZeroResidue } from "./support/expect-cleanup";
 
 /**
  * B3 — Seller journey spec (the first real end-to-end UI journey).
@@ -42,17 +42,7 @@ const MOCK_UPLOAD_RESPONSE = {
   public_id: "e2e-test",
 };
 
-test.afterAll(async () => {
-  const deleted = await cleanupE2EData();
-  console.log("[seller.spec] cleanupE2EData deleted:", deleted);
-  expect(await countE2EData()).toEqual({
-    bundleItems: 0,
-    bundles: 0,
-    listings: 0,
-    storefronts: 0,
-    users: 0,
-  });
-});
+test.afterAll(() => expectZeroResidue("seller.spec"));
 
 test("seller signs up, opens a storefront, and the submit-validation flow leaves exactly one PENDING_REVIEW listing", async ({ page }) => {
   const email = `e2e+seller-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@test.tk`;

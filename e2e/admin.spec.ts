@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { createUser, createStorefront, createLiveListing, E2E_PASSWORD } from "./support/factories";
 import { signIn } from "./support/auth";
-import { cleanupE2EData, countE2EData } from "./support/cleanup";
+import { expectZeroResidue } from "./support/expect-cleanup";
 
 /**
  * B4 — Admin curation spec.
@@ -20,17 +20,7 @@ import { cleanupE2EData, countE2EData } from "./support/cleanup";
  * touching `next/image` remote-host config.
  */
 
-test.afterAll(async () => {
-  const deleted = await cleanupE2EData();
-  console.log("[admin.spec] cleanupE2EData deleted:", deleted);
-  expect(await countE2EData()).toEqual({
-    bundleItems: 0,
-    bundles: 0,
-    listings: 0,
-    storefronts: 0,
-    users: 0,
-  });
-});
+test.afterAll(() => expectZeroResidue("admin.spec"));
 
 test("admin approves one PENDING_REVIEW listing (→ LIVE on /) and rejects another with a reason (→ seller sees it on edit)", async ({ page }) => {
   const stamp = Date.now();
