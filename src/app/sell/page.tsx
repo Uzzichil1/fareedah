@@ -7,6 +7,7 @@ import { centsToDollars } from "@/lib/money";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { Badge } from "@/components/ui/Badge";
 import { buttonClasses } from "@/components/ui/Button";
+import { ArchiveButton } from "@/components/sell/ArchiveButton";
 
 export const metadata: Metadata = { title: "Your listings" };
 
@@ -98,7 +99,10 @@ export default async function SellDashboardPage() {
                     </Link>
                     <p className="text-sm text-ink-soft">${centsToDollars(l.priceCents)}</p>
                   </div>
-                  <Badge tone={s.tone}>{s.label}</Badge>
+                  <div className="flex flex-col items-end gap-1.5">
+                    <Badge tone={s.tone}>{s.label}</Badge>
+                    {l.status === "LIVE" && <ArchiveButton listingId={l.id} />}
+                  </div>
                 </li>
               );
             })}

@@ -175,6 +175,23 @@ export async function updateListing(
   return undefined;
 }
 
+/** Archive an owned LIVE listing (ownership + state scoped, atomic). */
+export async function archiveListing(id: string): Promise<ActionResult> {
+  const { storefrontId } = await requireSeller();
+  const result = await prisma.listing.updateMany({
+    where: { id, storefrontId, status: "LIVE" },
+    data: { status: "ARCHIVED" },
+  });
+  if (result.count === 0) return { error: "This listing can't be archived." };
+
+  // Revalidate the public surfaces so the archived listing disappears, plus the dashboard.
+  revalidatePath("/");
+  revalidatePath("/sell");
+  revalidatePath(`/listings/${id}`);
+  revalidatePath("/store/[slug]", "page");
+  return undefined;
+}
+
 /** Validate the persisted listing strictly and move it to PENDING_REVIEW. */
 export async function submitListing(id: string): Promise<ActionResult> {
   const { storefrontId } = await requireSeller();
