@@ -33,7 +33,7 @@ export default function Error({
       </Link>
 
       <div className="mt-10 grid place-items-center rounded-[20px] border border-dashed border-line bg-surface/60 px-6 py-16 text-center">
-        <p className="font-display text-xl italic text-rose">Something went wrong.</p>
+        <h1 className="font-display text-xl italic text-rose">Something went wrong.</h1>
         <p className="mt-2 max-w-sm text-sm text-ink-soft">
           We hit a snag loading this page. Try again, or head back home while we sort it
           out.

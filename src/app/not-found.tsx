@@ -23,7 +23,7 @@ export default function NotFound() {
       </Link>
 
       <div className="mt-10 grid place-items-center rounded-[20px] border border-dashed border-line bg-surface/60 px-6 py-16 text-center">
-        <p className="font-display text-6xl text-rose">404</p>
+        <h1 className="font-display text-6xl text-rose">404</h1>
         <p className="mt-3 font-display text-xl italic text-rose">
           We couldn&apos;t find that page.
         </p>
