@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { createUploadSignature } from "@/app/sell/actions";
+import { uploadToCloudinary } from "@/lib/cloudinary-client";
 
 export type UploadedImage = { url: string; publicId: string; position: number };
 
@@ -22,33 +22,21 @@ export function ImageUploader({
     if (!files || files.length === 0) return;
     setError(null);
     setBusy(true);
+    const next = [...value];
     try {
-      const next = [...value];
       for (const file of Array.from(files)) {
         if (next.length >= MAX_IMAGES) {
           setError(`Up to ${MAX_IMAGES} images.`);
           break;
         }
-        const sig = await createUploadSignature();
-        const form = new FormData();
-        form.append("file", file);
-        form.append("api_key", sig.apiKey);
-        form.append("timestamp", String(sig.timestamp));
-        form.append("folder", sig.folder);
-        form.append("signature", sig.signature);
-        const res = await fetch(
-          `https://api.cloudinary.com/v1_1/${sig.cloudName}/image/upload`,
-          { method: "POST", body: form },
-        );
-        if (!res.ok) {
-          setError("Upload failed. Check Cloudinary configuration.");
-          break;
-        }
-        const data = (await res.json()) as { secure_url: string; public_id: string };
-        next.push({ url: data.secure_url, publicId: data.public_id, position: next.length });
+        const { url, publicId } = await uploadToCloudinary(file);
+        next.push({ url, publicId, position: next.length });
       }
-      onChange(next.map((img, i) => ({ ...img, position: i })));
+    } catch {
+      setError("Upload failed. Please try again.");
     } finally {
+      // Commit whatever uploaded successfully before any failure, then clear busy.
+      onChange(next.map((img, i) => ({ ...img, position: i })));
       setBusy(false);
     }
   }

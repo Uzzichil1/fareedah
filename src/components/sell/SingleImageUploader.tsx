@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import Image from "next/image";
-import { createUploadSignature } from "@/app/sell/actions";
+import { uploadToCloudinary } from "@/lib/cloudinary-client";
 
 /**
  * Single-image upload control for an avatar or banner. Reuses the proven
@@ -23,30 +23,17 @@ export function SingleImageUploader({
 }) {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const labelId = useId();
 
   async function handleFile(files: FileList | null) {
     if (!files || files.length === 0) return;
     setError(null);
     setBusy(true);
     try {
-      const file = files[0];
-      const sig = await createUploadSignature();
-      const form = new FormData();
-      form.append("file", file);
-      form.append("api_key", sig.apiKey);
-      form.append("timestamp", String(sig.timestamp));
-      form.append("folder", sig.folder);
-      form.append("signature", sig.signature);
-      const res = await fetch(
-        `https://api.cloudinary.com/v1_1/${sig.cloudName}/image/upload`,
-        { method: "POST", body: form },
-      );
-      if (!res.ok) {
-        setError("Upload failed. Check Cloudinary configuration.");
-        return;
-      }
-      const data = (await res.json()) as { secure_url: string };
-      onChange(data.secure_url);
+      const { url } = await uploadToCloudinary(files[0]);
+      onChange(url);
+    } catch {
+      setError("Upload failed. Please try again.");
     } finally {
       setBusy(false);
     }
@@ -59,7 +46,7 @@ export function SingleImageUploader({
 
   return (
     <div className="flex flex-col gap-3">
-      <span className="block text-xs font-semibold uppercase tracking-[0.14em] text-ink-soft">
+      <span id={labelId} className="block text-xs font-semibold uppercase tracking-[0.14em] text-ink-soft">
         {label}
       </span>
 
@@ -107,6 +94,7 @@ export function SingleImageUploader({
         <input
           type="file"
           accept="image/*"
+          aria-labelledby={labelId}
           disabled={busy}
           onChange={(e) => handleFile(e.target.files)}
           className="sr-only"
