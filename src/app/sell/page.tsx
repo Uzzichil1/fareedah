@@ -50,6 +50,9 @@ export default async function SellDashboardPage() {
             <h1 className="mt-1 font-display text-3xl text-ink">Listings</h1>
           </div>
           <div className="flex items-center gap-2">
+            <Link href="/sell/storefront" className={buttonClasses("secondary", "md")}>
+              Edit storefront
+            </Link>
             <Link href="/sell/offers" className={buttonClasses("secondary", "md")}>
               Offers
             </Link>

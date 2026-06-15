@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import { verifySession, requireSeller } from "@/lib/dal";
 import { dollarsToCents } from "@/lib/money";
@@ -12,7 +13,7 @@ import {
   type ListingDraftInput,
 } from "@/lib/validation/listing";
 import { slugify, uniqueSlug } from "@/lib/slug";
-import { storefrontSchema } from "@/lib/validation/storefront";
+import { storefrontSchema, storefrontEditSchema } from "@/lib/validation/storefront";
 
 export type ActionResult = { error: string } | undefined;
 
@@ -38,6 +39,32 @@ export async function createStorefront(raw: unknown): Promise<ActionResult> {
       bio: parsed.data.bio ? parsed.data.bio : null,
     },
   });
+  redirect("/sell");
+}
+
+/** Update the caller's storefront (name/bio/avatar/banner). Slug stays stable. */
+export async function editStorefront(raw: unknown): Promise<ActionResult> {
+  const { userId } = await verifySession();
+  const parsed = storefrontEditSchema.safeParse(raw);
+  if (!parsed.success) return { error: "Please check your details." };
+
+  const existing = await prisma.storefront.findUnique({ where: { userId } });
+  if (!existing) redirect("/sell/start");
+
+  await prisma.storefront.update({
+    where: { id: existing.id },
+    data: {
+      name: parsed.data.name,
+      bio: parsed.data.bio ? parsed.data.bio : null,
+      avatarUrl: parsed.data.avatarUrl ? parsed.data.avatarUrl : null,
+      bannerUrl: parsed.data.bannerUrl ? parsed.data.bannerUrl : null,
+    },
+  });
+
+  // LOAD-BEARING: the public storefront page is cached; without this the new
+  // avatar/banner/bio won't appear (that's the acceptance). Slug is unchanged.
+  revalidatePath(`/store/${existing.slug}`);
+  revalidatePath("/sell");
   redirect("/sell");
 }
 
