@@ -34,7 +34,7 @@ export default async function ListingDetailPage({ params }: { params: Promise<{ 
     <>
       <SiteHeader />
 
-      <main className="mx-auto w-full max-w-6xl px-5 py-8 sm:px-8">
+      <main id="main-content" tabIndex={-1} className="mx-auto w-full max-w-6xl px-5 py-8 sm:px-8">
         <Link
           href="/"
           className="inline-flex items-center gap-1.5 text-sm text-ink-soft transition-colors hover:text-rose"

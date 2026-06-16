@@ -42,7 +42,7 @@ export default async function SellDashboardPage() {
     <>
       <SiteHeader />
 
-      <main className="mx-auto w-full max-w-3xl px-5 py-10 sm:px-8">
+      <main id="main-content" tabIndex={-1} className="mx-auto w-full max-w-3xl px-5 py-10 sm:px-8">
         <div className="mb-8 flex items-end justify-between gap-4">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-sage">

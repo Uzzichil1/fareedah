@@ -5,7 +5,7 @@ export default function Loading() {
     <>
       <SkeletonHeader />
 
-      <main className="mx-auto w-full max-w-6xl px-5 pb-20 sm:px-8">
+      <main id="main-content" tabIndex={-1} className="mx-auto w-full max-w-6xl px-5 pb-20 sm:px-8">
         {/* Banner placeholder */}
         <div className="relative mt-4 h-40 animate-pulse overflow-hidden rounded-[20px] bg-blush/60 ring-1 ring-line sm:h-52" />
 

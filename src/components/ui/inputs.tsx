@@ -64,8 +64,14 @@ export function Label({ className = "", ...props }: LabelHTMLAttributes<HTMLLabe
   );
 }
 
-/** Inline validation / server error text in the warm danger tone. */
+/** Inline validation / server error text in the warm danger tone.
+ *  `role="alert"` + `aria-live="polite"` so screen readers announce validation
+ *  and server errors the moment they appear. */
 export function FieldError({ children }: { children?: ReactNode }) {
   if (!children) return null;
-  return <p className="mt-1.5 text-sm text-danger">{children}</p>;
+  return (
+    <p role="alert" aria-live="polite" className="mt-1.5 text-sm text-danger">
+      {children}
+    </p>
+  );
 }

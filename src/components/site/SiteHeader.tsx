@@ -53,7 +53,11 @@ export async function SiteHeader() {
           </Link>
           <Link
             href="/bag"
-            aria-label="Bag"
+            aria-label={
+              bagCount > 0
+                ? `Bag, ${bagCount} ${bagCount === 1 ? "item" : "items"}`
+                : "Bag"
+            }
             className="relative grid h-10 w-10 place-items-center rounded-full text-ink-soft transition-colors hover:bg-blush hover:text-ink"
           >
             <svg
@@ -71,7 +75,10 @@ export async function SiteHeader() {
               <path d="M9 7a3 3 0 0 1 6 0" />
             </svg>
             {bagCount > 0 && (
-              <span className="absolute -right-0.5 -top-0.5 grid h-4 min-w-4 place-items-center rounded-full bg-rose px-1 text-[10px] font-semibold text-paper">
+              <span
+                aria-hidden="true"
+                className="absolute -right-0.5 -top-0.5 grid h-4 min-w-4 place-items-center rounded-full bg-rose px-1 text-[10px] font-semibold text-paper"
+              >
                 {bagCount}
               </span>
             )}

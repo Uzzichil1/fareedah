@@ -16,7 +16,7 @@ export default async function SellStartPage() {
     <>
       <SiteHeader />
 
-      <main className="mx-auto w-full max-w-md px-5 py-12 sm:px-8">
+      <main id="main-content" tabIndex={-1} className="mx-auto w-full max-w-md px-5 py-12 sm:px-8">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-sage">
           Become a seller
         </p>

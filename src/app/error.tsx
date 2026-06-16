@@ -24,7 +24,7 @@ export default function Error({
   }, [error]);
 
   return (
-    <main className="flex flex-1 flex-col items-center justify-center px-6 py-20 text-center">
+    <main id="main-content" tabIndex={-1} className="flex flex-1 flex-col items-center justify-center px-6 py-20 text-center">
       <Link
         href="/"
         className="font-display text-[1.6rem] leading-none tracking-tight text-ink"

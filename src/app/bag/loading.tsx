@@ -36,7 +36,7 @@ export default function Loading() {
     <>
       <SkeletonHeader />
 
-      <main className="mx-auto w-full max-w-3xl px-5 py-10 sm:px-8">
+      <main id="main-content" tabIndex={-1} className="mx-auto w-full max-w-3xl px-5 py-10 sm:px-8">
         <div className="mb-8 h-8 w-40 animate-pulse rounded-full bg-blush/50" />
 
         <ul className="flex flex-col gap-6">

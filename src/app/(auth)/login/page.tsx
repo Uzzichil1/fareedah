@@ -6,7 +6,7 @@ export const metadata: Metadata = { title: "Log in" };
 
 export default function LoginPage() {
   return (
-    <main className="flex flex-1 flex-col items-center justify-center px-5 py-12">
+    <main id="main-content" tabIndex={-1} className="flex flex-1 flex-col items-center justify-center px-5 py-12">
       <div className="w-full max-w-sm">
         <Link href="/" className="block text-center font-display text-2xl tracking-tight text-ink">
           tiny<span className="italic text-rose">kloset</span>

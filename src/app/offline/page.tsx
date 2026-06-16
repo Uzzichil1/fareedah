@@ -4,7 +4,7 @@ export const metadata = {
 
 export default function OfflinePage() {
   return (
-    <main className="flex flex-1 flex-col items-center justify-center px-6 text-center">
+    <main id="main-content" tabIndex={-1} className="flex flex-1 flex-col items-center justify-center px-6 text-center">
       <div
         aria-hidden
         className="grid h-20 w-20 place-items-center rounded-full bg-blush text-rose ring-1 ring-rose-soft/50"

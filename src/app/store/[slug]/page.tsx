@@ -27,7 +27,7 @@ export default async function StorefrontPage({ params }: { params: Promise<{ slu
     <>
       <SiteHeader />
 
-      <main className="mx-auto w-full max-w-6xl px-5 pb-20 sm:px-8">
+      <main id="main-content" tabIndex={-1} className="mx-auto w-full max-w-6xl px-5 pb-20 sm:px-8">
         {/* Storefront banner */}
         <div className="relative mt-4 h-40 overflow-hidden rounded-[20px] bg-blush ring-1 ring-line sm:h-52">
           {storefront.bannerUrl ? (

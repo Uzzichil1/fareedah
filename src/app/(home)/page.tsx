@@ -62,7 +62,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
     <>
       <SiteHeader />
 
-      <main className="mx-auto w-full max-w-6xl px-5 pb-20 sm:px-8">
+      <main id="main-content" tabIndex={-1} className="mx-auto w-full max-w-6xl px-5 pb-20 sm:px-8">
         {/* Editorial hero */}
         <section className="py-12 sm:py-16">
           <p className="mb-4 text-xs font-semibold uppercase tracking-[0.22em] text-sage">

@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { addToBundle } from "@/app/bag/actions";
 import { Button } from "@/components/ui/Button";
+import { FieldError } from "@/components/ui/inputs";
 
 export function AddToBagButton({ listingId }: { listingId: string }) {
   const router = useRouter();
@@ -29,7 +30,7 @@ export function AddToBagButton({ listingId }: { listingId: string }) {
       <Button onClick={add} disabled={pending || added}>
         {added ? "Added to bag" : pending ? "Adding…" : "Add to bag"}
       </Button>
-      {error && <p className="text-sm text-danger">{error}</p>}
+      <FieldError>{error}</FieldError>
     </div>
   );
 }

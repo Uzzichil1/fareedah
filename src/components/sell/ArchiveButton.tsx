@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { archiveListing } from "@/app/sell/actions";
 import { Button } from "@/components/ui/Button";
+import { FieldError } from "@/components/ui/inputs";
 
 export function ArchiveButton({ listingId }: { listingId: string }) {
   const router = useRouter();
@@ -24,7 +25,7 @@ export function ArchiveButton({ listingId }: { listingId: string }) {
       <Button variant="ghost" size="sm" disabled={pending} onClick={archive}>
         Archive
       </Button>
-      {error && <p className="text-sm text-danger">{error}</p>}
+      <FieldError>{error}</FieldError>
     </div>
   );
 }

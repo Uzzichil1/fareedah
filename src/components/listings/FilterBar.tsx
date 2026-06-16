@@ -20,17 +20,20 @@ function Pill({
   defaultValue,
   allLabel,
   options,
+  ariaLabel,
 }: {
   name: string;
   defaultValue: string;
   allLabel: string;
   options: Option[];
+  ariaLabel: string;
 }) {
   return (
     <div className="relative">
       <select
         name={name}
         defaultValue={defaultValue}
+        aria-label={ariaLabel}
         className={`${fieldBase} appearance-none py-2 pl-4 pr-9`}
       >
         <option value="">{allLabel}</option>
@@ -94,21 +97,23 @@ export function FilterBar({
           name="q"
           defaultValue={current.q ?? ""}
           placeholder="Search brands, pieces, sizes…"
+          aria-label="Search listings"
           className={`${fieldBase} w-full py-2.5 pl-11 pr-4`}
         />
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
-        <Pill name="category" defaultValue={current.category ?? ""} allLabel="All categories" options={categories} />
-        <Pill name="size" defaultValue={current.size ?? ""} allLabel="All sizes" options={sizes} />
-        <Pill name="condition" defaultValue={current.condition ?? ""} allLabel="Any condition" options={conditions} />
-        <Pill name="brand" defaultValue={current.brand ?? ""} allLabel="All brands" options={brands} />
+        <Pill name="category" defaultValue={current.category ?? ""} allLabel="All categories" options={categories} ariaLabel="Filter by category" />
+        <Pill name="size" defaultValue={current.size ?? ""} allLabel="All sizes" options={sizes} ariaLabel="Filter by size" />
+        <Pill name="condition" defaultValue={current.condition ?? ""} allLabel="Any condition" options={conditions} ariaLabel="Filter by condition" />
+        <Pill name="brand" defaultValue={current.brand ?? ""} allLabel="All brands" options={brands} ariaLabel="Filter by brand" />
 
         <div className="flex items-center overflow-hidden rounded-full border border-line bg-surface shadow-[var(--shadow-card)]">
           <input
             name="priceMin"
             defaultValue={current.priceMin ?? ""}
             placeholder="Min"
+            aria-label="Minimum price"
             inputMode="numeric"
             className="w-16 bg-transparent py-2 pl-4 pr-1 text-sm text-ink placeholder:text-ink-soft/70 focus:outline-none"
           />
@@ -117,6 +122,7 @@ export function FilterBar({
             name="priceMax"
             defaultValue={current.priceMax ?? ""}
             placeholder="Max"
+            aria-label="Maximum price"
             inputMode="numeric"
             className="w-16 bg-transparent py-2 pl-1 pr-4 text-sm text-ink placeholder:text-ink-soft/70 focus:outline-none"
           />
@@ -126,6 +132,7 @@ export function FilterBar({
           <select
             name="sort"
             defaultValue={current.sort ?? "newest"}
+            aria-label="Sort by"
             className={`${fieldBase} appearance-none py-2 pl-4 pr-9`}
           >
             <option value="newest">Newest</option>

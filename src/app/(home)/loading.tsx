@@ -5,7 +5,7 @@ export default function Loading() {
     <>
       <SkeletonHeader />
 
-      <main className="mx-auto w-full max-w-6xl px-5 pb-20 sm:px-8">
+      <main id="main-content" tabIndex={-1} className="mx-auto w-full max-w-6xl px-5 pb-20 sm:px-8">
         {/* Hero placeholder */}
         <section className="py-12 sm:py-16">
           <div className="mb-4 h-3 w-48 animate-pulse rounded-full bg-blush/50" />
