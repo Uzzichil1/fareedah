@@ -1,3 +1,5 @@
+import { SkeletonHeader } from "@/components/skeletons/Skeletons";
+
 function RowSkeleton({ delay }: { delay: number }) {
   return (
     <li
@@ -21,6 +23,10 @@ function RowSkeleton({ delay }: { delay: number }) {
         <div className="h-4 w-20 rounded-full bg-blush/50" />
         <div className="h-5 w-14 rounded-full bg-blush/50" />
       </div>
+      <div className="mt-3 flex gap-2">
+        <div className="h-9 w-24 rounded-full bg-surface ring-1 ring-line" />
+        <div className="h-9 w-24 rounded-full bg-surface ring-1 ring-line" />
+      </div>
     </li>
   );
 }
@@ -28,12 +34,7 @@ function RowSkeleton({ delay }: { delay: number }) {
 export default function Loading() {
   return (
     <>
-      {/* Static header placeholder — avoids invoking the async SiteHeader */}
-      <div className="border-b border-line">
-        <div className="mx-auto flex h-16 max-w-6xl items-center px-5 sm:px-8">
-          <div className="h-5 w-28 animate-pulse rounded-full bg-blush/50" />
-        </div>
-      </div>
+      <SkeletonHeader />
 
       <main className="mx-auto w-full max-w-3xl px-5 py-10 sm:px-8">
         <div className="mb-8 h-8 w-40 animate-pulse rounded-full bg-blush/50" />
