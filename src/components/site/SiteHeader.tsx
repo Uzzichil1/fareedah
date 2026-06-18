@@ -24,7 +24,7 @@ export async function SiteHeader() {
   }
   return (
     <header className="sticky top-0 z-30 border-b border-line/70 bg-paper/80 backdrop-blur-md">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-4 sm:px-8">
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-5 py-4 sm:gap-4 sm:px-8">
         <Link
           href="/"
           className="font-display text-[1.6rem] leading-none tracking-tight text-ink"
@@ -47,7 +47,7 @@ export async function SiteHeader() {
         <div className="flex items-center gap-1">
           <Link
             href="/sell"
-            className="rounded-full border border-line bg-surface px-4 py-2 text-xs font-semibold tracking-wide text-ink shadow-[var(--shadow-card)] transition-colors hover:border-rose-soft hover:text-rose sm:hidden"
+            className="inline-flex min-h-[44px] items-center rounded-full border border-line bg-surface px-3 py-2 text-xs font-semibold tracking-wide text-ink shadow-[var(--shadow-card)] transition-colors hover:border-rose-soft hover:text-rose sm:hidden sm:px-4"
           >
             Sell
           </Link>
@@ -58,7 +58,7 @@ export async function SiteHeader() {
                 ? `Bag, ${bagCount} ${bagCount === 1 ? "item" : "items"}`
                 : "Bag"
             }
-            className="relative grid h-10 w-10 place-items-center rounded-full text-ink-soft transition-colors hover:bg-blush hover:text-ink"
+            className="relative grid h-11 w-11 place-items-center rounded-full text-ink-soft transition-colors hover:bg-blush hover:text-ink"
           >
             <svg
               width="20"
@@ -86,7 +86,7 @@ export async function SiteHeader() {
           <Link
             href="/account"
             aria-label="Account"
-            className="grid h-10 w-10 place-items-center rounded-full text-ink-soft transition-colors hover:bg-blush hover:text-ink"
+            className="grid h-11 w-11 place-items-center rounded-full text-ink-soft transition-colors hover:bg-blush hover:text-ink"
           >
             <svg
               width="20"

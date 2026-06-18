@@ -34,7 +34,7 @@ function Pill({
         name={name}
         defaultValue={defaultValue}
         aria-label={ariaLabel}
-        className={`${fieldBase} appearance-none py-2 pl-4 pr-9`}
+        className={`${fieldBase} min-h-[44px] appearance-none py-2 pl-4 pr-9`}
       >
         <option value="">{allLabel}</option>
         {options.map((o) => (
@@ -108,7 +108,7 @@ export function FilterBar({
         <Pill name="condition" defaultValue={current.condition ?? ""} allLabel="Any condition" options={conditions} ariaLabel="Filter by condition" />
         <Pill name="brand" defaultValue={current.brand ?? ""} allLabel="All brands" options={brands} ariaLabel="Filter by brand" />
 
-        <div className="flex items-center overflow-hidden rounded-full border border-line bg-surface shadow-[var(--shadow-card)]">
+        <div className="flex min-h-[44px] items-center overflow-hidden rounded-full border border-line bg-surface shadow-[var(--shadow-card)]">
           <input
             name="priceMin"
             defaultValue={current.priceMin ?? ""}
@@ -133,7 +133,7 @@ export function FilterBar({
             name="sort"
             defaultValue={current.sort ?? "newest"}
             aria-label="Sort by"
-            className={`${fieldBase} appearance-none py-2 pl-4 pr-9`}
+            className={`${fieldBase} min-h-[44px] appearance-none py-2 pl-4 pr-9`}
           >
             <option value="newest">Newest</option>
             <option value="price_asc">Price: low to high</option>
@@ -157,7 +157,7 @@ export function FilterBar({
 
         <button
           type="submit"
-          className="rounded-full bg-ink px-6 py-2 text-sm font-semibold tracking-wide text-paper transition-colors hover:bg-rose"
+          className="min-h-[44px] rounded-full bg-ink px-6 py-2 text-sm font-semibold tracking-wide text-paper transition-colors hover:bg-rose"
         >
           Refine
         </button>
