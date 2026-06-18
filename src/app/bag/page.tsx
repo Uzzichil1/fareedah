@@ -44,7 +44,7 @@ export default async function BagPage() {
   return (
     <>
       <SiteHeader />
-      <main className="mx-auto w-full max-w-3xl px-5 py-10 sm:px-8">
+      <main id="main-content" tabIndex={-1} className="mx-auto w-full max-w-3xl px-5 py-10 sm:px-8">
         <h1 className="mb-8 font-display text-3xl text-ink">Your bag</h1>
 
         {bundles.length === 0 ? (
@@ -111,7 +111,7 @@ export default async function BagPage() {
                   {b.offerCents != null && (b.status === "SUBMITTED" || b.status === "ACCEPTED") && (
                     <div className="mt-1 flex items-baseline justify-between">
                       <span className="text-sm text-ink-soft">Your offer</span>
-                      <span className="font-display text-lg text-rose">${centsToDollars(b.offerCents)}</span>
+                      <span className="font-display text-lg text-rose-deep">${centsToDollars(b.offerCents)}</span>
                     </div>
                   )}
 

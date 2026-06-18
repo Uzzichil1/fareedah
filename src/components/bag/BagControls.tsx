@@ -9,7 +9,7 @@ import {
   withdrawOffer,
 } from "@/app/bag/actions";
 import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/inputs";
+import { Input, FieldError } from "@/components/ui/inputs";
 
 type Item = { listingId: string; title: string };
 
@@ -62,6 +62,7 @@ export function BagControls({
             value={offer}
             onChange={(e) => setOffer(e.target.value)}
             placeholder="Offer (USD)"
+            aria-label="Offer amount in USD"
             inputMode="decimal"
             className="max-w-[10rem]"
           />
@@ -108,7 +109,7 @@ export function BagControls({
         )}
       </div>
 
-      {error && <p className="text-sm text-danger">{error}</p>}
+      <FieldError>{error}</FieldError>
     </div>
   );
 }

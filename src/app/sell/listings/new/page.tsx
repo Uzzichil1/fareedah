@@ -17,7 +17,7 @@ export default async function NewListingPage() {
     <>
       <SiteHeader />
 
-      <main className="mx-auto w-full max-w-lg px-5 py-10 sm:px-8">
+      <main id="main-content" tabIndex={-1} className="mx-auto w-full max-w-lg px-5 py-10 sm:px-8">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-sage">
           Add a piece
         </p>

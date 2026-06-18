@@ -14,7 +14,7 @@ export default async function AccountPage() {
     <>
       <SiteHeader />
 
-      <main className="mx-auto w-full max-w-md px-5 py-12 sm:px-8">
+      <main id="main-content" tabIndex={-1} className="mx-auto w-full max-w-md px-5 py-12 sm:px-8">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-sage">Account</p>
         <h1 className="mt-1 font-display text-3xl text-ink">Your account</h1>
 

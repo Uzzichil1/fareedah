@@ -85,6 +85,16 @@ body > * {
   color: var(--color-ink);
 }
 
+/* Keyboard focus ring for links. `Button` ships its own `focus-visible:ring`,
+   so this targets anchors specifically; on Links styled with `buttonClasses`
+   the ring + outline may both show, which is acceptable (still clearly
+   focused). `rose-deep` clears AA contrast against the warm paper. */
+a:focus-visible {
+  outline: 2px solid var(--color-rose-deep);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
 /* Form controls inherit the warm type instead of the browser default. */
 input,
 select,

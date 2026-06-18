@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { respondToOffer } from "@/app/sell/offers/actions";
 import { Button } from "@/components/ui/Button";
+import { FieldError } from "@/components/ui/inputs";
 
 export function OfferActions({ bundleId }: { bundleId: string }) {
   const router = useRouter();
@@ -29,7 +30,7 @@ export function OfferActions({ bundleId }: { bundleId: string }) {
           Decline
         </Button>
       </div>
-      {error && <p className="text-sm text-danger">{error}</p>}
+      <FieldError>{error}</FieldError>
     </div>
   );
 }

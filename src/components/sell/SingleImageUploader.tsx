@@ -3,6 +3,7 @@
 import { useId, useState } from "react";
 import Image from "next/image";
 import { uploadToCloudinary } from "@/lib/cloudinary-client";
+import { FieldError } from "@/components/ui/inputs";
 
 /**
  * Single-image upload control for an avatar or banner. Reuses the proven
@@ -101,7 +102,7 @@ export function SingleImageUploader({
         />
       </label>
       {busy && <p className="text-sm text-ink-soft">Uploading…</p>}
-      {error && <p className="text-sm text-danger">{error}</p>}
+      <FieldError>{error}</FieldError>
     </div>
   );
 }
