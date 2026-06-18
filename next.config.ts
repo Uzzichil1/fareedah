@@ -5,7 +5,11 @@ const nextConfig: NextConfig = {
     root: __dirname,
   },
   images: {
-    remotePatterns: [new URL("https://res.cloudinary.com/**")],
+    remotePatterns: [
+      new URL("https://res.cloudinary.com/**"),
+      new URL("https://picsum.photos/**"),
+      new URL("https://fastly.picsum.photos/**"),
+    ],
   },
 };
 
