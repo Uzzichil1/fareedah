@@ -77,16 +77,22 @@ Props: `{ listingId: string; initialFavorited: boolean; isAuthenticated: boolean
 - `overlay` (default): icon-only heart, absolutely positioned top-right, for cards.
 - `inline`: heart + "Favourite"/"Favourited" label, for the listing detail page.
 - Renders a `<button>`. On click:
-  - `e.preventDefault(); e.stopPropagation();` — the overlay button is nested inside the card's `<Link>`, so it must not trigger navigation.
   - If `!isAuthenticated` → `router.push("/login")`.
   - Else: optimistic local state flip + `useTransition` → `await toggleFavorite(listingId)`; on `{ error }` or thrown, revert and (inline variant) surface via `FieldError`.
+  - No `stopPropagation` gymnastics needed — with the stretched-link card pattern (see §5) the button is a **sibling** of the link, not nested inside it.
+- **State note:** initialise local state with `useState(initialFavorited)`. Do NOT derive state from the prop on re-render — given the flows (home/store don't revalidate; the favourites page drops the item) the optimistic local state is authoritative and a derived/`useEffect`-synced value would risk a stale or flickering heart. The component is keyed by `listingId` so a different listing remounts with fresh state.
 - Accessibility: `aria-pressed={favorited}`, `aria-label` = "Add to favourites" / "Remove from favourites". Tap target ≥ 44px (matches the project's C3 mobile rule). Filled vs outline heart by state.
 
 ### 5. `src/components/listings/ListingCard.tsx` — render the heart (edit)
 - Add optional props **outside** the `listing` object: `isFavorited?: boolean`, `isAuthenticated?: boolean`, `unavailable?: boolean`.
-- When `isAuthenticated`/`isFavorited` props are supplied, render `<FavoriteButton variant="overlay" …>` over the image (top-right; replaces/sits beside the condition chip which is top-left — no collision).
-- When `unavailable` is true: render the card **without** the `<Link>` wrapper (use a plain `<div>`), dim the image (`opacity-60`), and overlay a centred "No longer available" pill. The heart remains rendered and toggle-able (so the buyer can un-save it) — it is a sibling of the dimmed image, not affected by the dimming.
-- Card stays backward-compatible: with none of the new props it renders exactly as today (no heart). Callers opt in.
+- **Restructure to a stretched-link card** so the heart is not an interactive element nested inside an anchor (nested-interactive is invalid HTML — `<a>` forbids interactive descendants — and would NOT be caught by the critical-only a11y gate). Pattern:
+  - The card root becomes a `relative` `<div>` (not a `<Link>`).
+  - The `<Link href={…}>` covers the clickable area via a stretched overlay: `absolute inset-0 z-0` (or an empty link with `after:absolute after:inset-0`), with an accessible name from the title.
+  - `<FavoriteButton variant="overlay">` is a **sibling** of the link, positioned top-right with `relative z-10` so it sits above the stretched link and receives its own clicks. No `preventDefault`/`stopPropagation` required.
+  - The condition chip stays top-left; heart top-right — no collision.
+- When `isAuthenticated`/`isFavorited` props are supplied, render the `FavoriteButton`. With none of the heart props, no heart renders.
+- When `unavailable` is true: render **no** `<Link>` at all (the whole card is non-navigable), dim the image (`opacity-60`), and overlay a centred "No longer available" pill. The heart still renders at `z-10` and is toggle-able so the buyer can un-save it.
+- Card stays backward-compatible: with none of the new props it renders a stretched-link card that behaves exactly like today's full-card link (same destination, same hover). Callers opt into the heart.
 
 ### 6. Pages
 
