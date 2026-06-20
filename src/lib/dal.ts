@@ -17,6 +17,13 @@ export const verifySession = cache(async (): Promise<SessionInfo> => {
   return { userId: session.user.id, role: session.user.role };
 });
 
+/** Returns the current user's id, or null if not signed in. Does NOT redirect.
+ *  Memoized per request — for public pages that vary by auth state. */
+export const getOptionalUserId = cache(async (): Promise<string | null> => {
+  const session = await auth();
+  return session?.user?.id ?? null;
+});
+
 /** Returns the current user's safe fields, or null. */
 export const getCurrentUser = cache(async () => {
   const { userId } = await verifySession();
