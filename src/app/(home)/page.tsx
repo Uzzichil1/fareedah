@@ -4,6 +4,8 @@ import { getLeafCategories, getSizes, getConditions, getBrands } from "@/lib/tax
 import { ListingCard } from "@/components/listings/ListingCard";
 import { FilterBar } from "@/components/listings/FilterBar";
 import { SiteHeader } from "@/components/site/SiteHeader";
+import { getOptionalUserId } from "@/lib/dal";
+import { getFavoritedListingIds } from "@/lib/favorites-data";
 
 type SP = Record<string, string | string[] | undefined>;
 
@@ -55,6 +57,11 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
     getConditions(),
     getBrands(),
   ]);
+
+  const userId = await getOptionalUserId();
+  const favIds = userId
+    ? await getFavoritedListingIds(userId, listings.map((l) => l.id))
+    : new Set<string>();
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
@@ -115,6 +122,8 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
                   style={{ animationDelay: `${Math.min(i, 10) * 55}ms` }}
                 >
                   <ListingCard
+                    isAuthenticated={!!userId}
+                    isFavorited={favIds.has(l.id)}
                     listing={{
                       id: l.id,
                       title: l.title,

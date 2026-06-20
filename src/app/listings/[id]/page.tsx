@@ -7,6 +7,7 @@ import { SiteHeader } from "@/components/site/SiteHeader";
 import { Badge } from "@/components/ui/Badge";
 import { auth } from "@/auth";
 import { AddToBagButton } from "@/components/bag/AddToBagButton";
+import { FavoriteButton } from "@/components/listings/FavoriteButton";
 
 export default async function ListingDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -29,6 +30,13 @@ export default async function ListingDetailPage({ params }: { params: Promise<{ 
   const viewerId = session?.user?.id ?? null;
   // Buyers (signed in) who don't own this listing can add it to a bag.
   const canAddToBag = !!viewerId && viewerId !== listing.storefront.userId;
+
+  const favorited = viewerId
+    ? !!(await prisma.favorite.findUnique({
+        where: { userId_listingId: { userId: viewerId, listingId: listing.id } },
+        select: { id: true },
+      }))
+    : false;
 
   return (
     <>
@@ -94,6 +102,15 @@ export default async function ListingDetailPage({ params }: { params: Promise<{ 
             <p className="mt-3 font-display text-2xl text-rose">
               ${centsToDollars(listing.priceCents)}
             </p>
+
+            <div className="mt-5">
+              <FavoriteButton
+                listingId={listing.id}
+                initialFavorited={favorited}
+                isAuthenticated={!!viewerId}
+                variant="inline"
+              />
+            </div>
 
             {canAddToBag && (
               <div className="mt-5">

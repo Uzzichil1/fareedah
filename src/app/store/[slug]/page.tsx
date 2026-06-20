@@ -3,6 +3,8 @@ import Image from "next/image";
 import { prisma } from "@/lib/db";
 import { ListingCard } from "@/components/listings/ListingCard";
 import { SiteHeader } from "@/components/site/SiteHeader";
+import { getOptionalUserId } from "@/lib/dal";
+import { getFavoritedListingIds } from "@/lib/favorites-data";
 
 export default async function StorefrontPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -22,6 +24,11 @@ export default async function StorefrontPage({ params }: { params: Promise<{ slu
     },
   });
   if (!storefront) notFound();
+
+  const userId = await getOptionalUserId();
+  const favIds = userId
+    ? await getFavoritedListingIds(userId, storefront.listings.map((l) => l.id))
+    : new Set<string>();
 
   return (
     <>
@@ -96,6 +103,8 @@ export default async function StorefrontPage({ params }: { params: Promise<{ slu
                 style={{ animationDelay: `${Math.min(i, 10) * 55}ms` }}
               >
                 <ListingCard
+                  isAuthenticated={!!userId}
+                  isFavorited={favIds.has(l.id)}
                   listing={{
                     id: l.id,
                     title: l.title,
