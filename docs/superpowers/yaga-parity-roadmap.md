@@ -74,7 +74,7 @@ The master checklist: every Yaga page/flow mapped to TinyKloset. Update status a
 
 | # | Section | Status | Depends on | Spec | Plan |
 |---|---------|--------|-----------|------|------|
-| B | Favorites / likes | ✅ Done (branch `section-b-favourites`, `cb01dc0..9e87f0a`; pending merge) | none | [spec](specs/2026-06-19-section-b-favourites-design.md) | [plan](plans/2026-06-20-section-b-favourites.md) |
+| B | Favorites / likes | ✅ Done (merged to `main`, `a85565a`) | none | [spec](specs/2026-06-19-section-b-favourites-design.md) | [plan](plans/2026-06-20-section-b-favourites.md) |
 | C | Follow shops | 📋 Not started | none | — | — |
 | D | Counter-offers | 📋 Not started | existing offer flow | — | — |
 | E | Ratings & reviews | 📋 Not started | completed orders (Phase 4c) | — | — |
