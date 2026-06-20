@@ -67,9 +67,9 @@ export async function toggleFavorite(listingId: string): Promise<ToggleResult>;
 Behaviour:
 - `const { userId } = await verifySession();` — redirects anon to `/login` (defence in depth; the client island also guards).
 - Look up existing `Favorite` for `(userId, listingId)`.
-  - Exists → `delete` → return `{ favorited: false }`.
-  - Missing → `create` → return `{ favorited: true }`. Wrap create in try/catch for `P2002` (unique race): treat as already-favourited → `{ favorited: true }`.
-- Optionally validate the listing exists; if not, return `{ error }`. (Cheap guard; a favourite of a deleted listing is harmless but pointless.)
+  - Exists → `delete` → return `{ favorited: false }`. (The delete path is always allowed — un-favouriting an item that has since gone SOLD/ARCHIVED must work.)
+  - Missing → **gate on LIVE first** (visibility invariant — see below) → `create` → return `{ favorited: true }`. Wrap create in try/catch for `P2002` (unique race): treat as already-favourited → `{ favorited: true }`.
+- **LIVE gate on the create path (required, not optional):** before inserting, `findFirst({ where: { id: listingId, status: "LIVE" }, select: { id: true } })`; if null → return `{ error: "This item is no longer available." }`. Without this, an authenticated user could favourite an arbitrary non-public listing id (DRAFT/PENDING_REVIEW/REJECTED) and then see its image/title/price on `/favourites` as a "No longer available" card — leaking a never-public listing and breaching the LIVE-only visibility invariant. The gate also subsumes the FK/`P2003` (deleted listing) case. It is on the create path only; legitimately-favourited items that later go non-LIVE remain visible by design (they were LIVE at favourite time).
 - `revalidatePath("/favourites")` so the favourites page reflects the change on next visit. No revalidation of `/` needed — the heart is client-optimistic.
 
 ### 4. `src/components/listings/FavoriteButton.tsx` — heart island (new, `"use client"`)

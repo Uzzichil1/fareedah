@@ -45,7 +45,7 @@ The master checklist: every Yaga page/flow mapped to TinyKloset. Update status a
 | Browse | Category / search / filter | `/` filter bar | ✅ Done | — |
 | Browse | Item detail | `/listings/[id]` | ✅ Done | — |
 | Browse | Shop / seller page | `/store/[slug]` | ✅ Done | — |
-| Browse | Favourites page | _none_ | 📋 Not started | **Section B** |
+| Browse | Favourites page | `/favourites` | ✅ Done | **Section B** |
 | Browse | Following / followed-shops feed | _none_ | 📋 Not started | **Section C** |
 | Sell | Open a shop | `/sell/start` | ✅ Done | — |
 | Sell | Seller dashboard | `/sell` | ✅ Done | — |
@@ -74,7 +74,7 @@ The master checklist: every Yaga page/flow mapped to TinyKloset. Update status a
 
 | # | Section | Status | Depends on | Spec | Plan |
 |---|---------|--------|-----------|------|------|
-| B | Favorites / likes | 📋 Spec + plan written | none | [spec](specs/2026-06-19-section-b-favourites-design.md) | [plan](plans/2026-06-20-section-b-favourites.md) |
+| B | Favorites / likes | ✅ Done (branch `section-b-favourites`, `cb01dc0..9e87f0a`; pending merge) | none | [spec](specs/2026-06-19-section-b-favourites-design.md) | [plan](plans/2026-06-20-section-b-favourites.md) |
 | C | Follow shops | 📋 Not started | none | — | — |
 | D | Counter-offers | 📋 Not started | existing offer flow | — | — |
 | E | Ratings & reviews | 📋 Not started | completed orders (Phase 4c) | — | — |
