@@ -1,4 +1,3 @@
-import "server-only";
 import { prisma } from "@/lib/db";
 
 /** Returns the subset of `listingIds` the user has favourited, as a Set.
