@@ -42,6 +42,8 @@ Add the back-relations:
 
 **Migration:** this is the first Section C/B change that alters the schema. Apply to the live Supabase dev DB via the project convention: confirm the `DIRECT_URL` target, then `npx prisma migrate dev --name add_follow` followed by `npx prisma generate`. The generated client lives at `@/generated/prisma/client`.
 
+> ⚠️ **Migration guardrail (execution-critical).** This change runs against the live Supabase **dev** DB, which holds the demo + E2E fixtures. Before migrating, confirm `DIRECT_URL` points at the dev project (ref in [[supabase-project]]). The change is purely additive (one new table + indexes), so `prisma migrate dev` should apply cleanly. **If `prisma migrate dev` proposes or requires a database RESET (e.g. it reports drift), STOP and escalate — do NOT accept a reset**, which would wipe dev data. Follow how prior migrations (Order/Bundle/etc. already in the schema) were applied rather than improvising.
+
 ---
 
 ## Components
@@ -58,7 +60,7 @@ export function followingFeedWhere(storefrontIds: string[]): {
   return { status: "LIVE", storefrontId: { in: storefrontIds } };
 }
 ```
-**This is the unit-tested unit** — it carries the visibility invariant (always `status:"LIVE"`; empty set matches nothing). Kept pure (no prisma/`server-only`) so vitest can import it, matching the `favorites.ts` split.
+**This is the unit-tested unit** — it carries the visibility invariant (always `status:"LIVE"`; empty set matches nothing). Kept pure (no prisma/`server-only`) so vitest can import it, matching the `favorites.ts` split. Keep the status typed strictly: prefer importing the `ListingStatus` enum (or annotate the return `satisfies Prisma.ListingWhereInput`) over widening to `string`, so a typo'd status fails at tsc rather than silently changing which listings the feed returns. (Type-only imports are erased and won't pull `server-only` into the vitest import.)
 
 ### 2. `src/lib/follows-data.ts` — data helpers (new, server; no `server-only`, matching `db.ts`/`favorites-data.ts` so smoke scripts can import)
 - `isFollowing(userId: string, storefrontId: string): Promise<boolean>` — `findUnique` on the compound key `followerId_storefrontId`, return `!!row`.
@@ -148,7 +150,7 @@ Props: `{ storefrontId: string; initialFollowing: boolean; isAuthenticated: bool
 - **DB smoke** (`scripts/smoke-follows.ts`, mirrors `scripts/smoke-favorites.ts`): follow → row exists + `getFollowerCount` is 1 + `isFollowing` true; duplicate follow hits the unique constraint (P2002); `getFollowedStorefrontIds` returns the shop; the feed query (`followingFeedWhere` + prisma) returns the shop's LIVE listing but NOT a SOLD one; unfollow → row gone + count 0. Cleanup FK-safe (follow → listing → storefront → user).
 - **Playwright** (`e2e/follows.spec.ts`):
   1. Factory seller + storefront + 1 LIVE listing; real buyer (createUser + signInAs).
-  2. Buyer visits `/store/<slug>` → clicks Follow → button shows "Following", count shows "1 follower".
+  2. Buyer visits `/store/<slug>` → clicks Follow → **wait for the button to settle** (re-enabled / "Following" visible) BEFORE asserting the count, and use a web-first auto-retrying assertion for the count (`await expect(countLocator).toHaveText(/1 follower/)`). The count lives in the server component and only updates after the action's write + `router.refresh()` — asserting immediately races that re-render (the Section B lesson, recurring here as a count).
   3. `/following` shows the seller's LIVE item.
   4. Unfollow (on the shop page) → button back to "Follow".
   5. Anonymous (clear cookies): clicking Follow on `/store/<slug>` → lands on `/login`.
