@@ -22,6 +22,12 @@ export async function toggleFavorite(listingId: string): Promise<ToggleResult> {
     return { favorited: false };
   }
 
+  const live = await prisma.listing.findFirst({
+    where: { id: listingId, status: "LIVE" },
+    select: { id: true },
+  });
+  if (!live) return { error: "This item is no longer available." };
+
   try {
     await prisma.favorite.create({ data: { userId, listingId } });
   } catch (e: unknown) {
