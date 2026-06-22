@@ -61,6 +61,8 @@ test.describe("Counter-offers", () => {
     await signInAs(page, buyer);
     await page.goto("/bag");
     await expect(page.getByText(/offer accepted/i)).toBeVisible();
+    await expect(page.getByText(/agreed price/i)).toBeVisible();
+    await expect(page.getByText(/\$58(\.00)?/)).toBeVisible();
   });
 
   test("buyer declines a seller counter", async ({ page, context }) => {
