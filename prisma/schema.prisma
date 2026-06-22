@@ -43,6 +43,7 @@ model User {
   orders              Order[]
   bundles             Bundle[]
   favorites           Favorite[]
+  following           Follow[]
   sentMessages        Message[]
   buyerConversations  Conversation[] @relation("BuyerConversations")
   sellerConversations Conversation[] @relation("SellerConversations")
@@ -156,6 +157,7 @@ model Storefront {
   listings   Listing[]
   orderItems OrderItem[]
   bundles    Bundle[]
+  followers  Follow[]
 }
 
 model Listing {
@@ -344,4 +346,17 @@ model Favorite {
 
   @@unique([userId, listingId])
   @@index([listingId])
+}
+
+model Follow {
+  id           String   @id @default(cuid())
+  followerId   String
+  storefrontId String
+  createdAt    DateTime @default(now())
+
+  follower   User       @relation(fields: [followerId], references: [id], onDelete: Cascade)
+  storefront Storefront @relation(fields: [storefrontId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, storefrontId])
+  @@index([storefrontId])
 }
