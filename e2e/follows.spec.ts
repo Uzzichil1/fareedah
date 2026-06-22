@@ -23,16 +23,16 @@ test.describe("Follow shops", () => {
 
     // Follow from the shop page.
     await page.goto(`/store/${store.slug}`);
-    const followBtn = page.getByRole("button", { name: /follow this shop/i });
+    const followBtn = page.getByRole("button", { name: /^follow this shop$/i });
     await expect(followBtn).toBeVisible();
     await followBtn.click();
 
     // Wait for the button to settle BEFORE asserting the count (the count lives
     // in the server component and updates only after the write + router.refresh).
-    const unfollowBtn = page.getByRole("button", { name: /unfollow this shop/i });
+    const unfollowBtn = page.getByRole("button", { name: /^unfollow this shop$/i });
     await expect(unfollowBtn).toBeVisible();
     await expect(unfollowBtn).toBeEnabled();
-    await expect(page.getByText(/1 follower/)).toBeVisible();
+    await expect(page.getByText(/\b1 follower\b/)).toBeVisible();
 
     // Item shows on /following.
     await page.goto("/following");
@@ -40,8 +40,8 @@ test.describe("Follow shops", () => {
 
     // Unfollow from the shop page.
     await page.goto(`/store/${store.slug}`);
-    await page.getByRole("button", { name: /unfollow this shop/i }).click();
-    await expect(page.getByRole("button", { name: /follow this shop/i })).toBeVisible();
+    await page.getByRole("button", { name: /^unfollow this shop$/i }).click();
+    await expect(page.getByRole("button", { name: /^follow this shop$/i })).toBeVisible();
   });
 
   test("anonymous follow click routes to /login", async ({ page, context }) => {
@@ -51,7 +51,7 @@ test.describe("Follow shops", () => {
 
     await context.clearCookies();
     await page.goto(`/store/${store.slug}`);
-    await page.getByRole("button", { name: /follow this shop/i }).click();
+    await page.getByRole("button", { name: /^follow this shop$/i }).click();
     await page.waitForURL("**/login");
     await expect(page).toHaveURL(/\/login/);
   });
@@ -63,7 +63,7 @@ test.describe("Follow shops", () => {
 
     await signInAs(page, seller);
     await page.goto(`/store/${store.slug}`);
-    await expect(page.getByText(/0 followers/)).toBeVisible(); // page rendered
-    await expect(page.getByRole("button", { name: /follow this shop/i })).toHaveCount(0);
+    await expect(page.getByText(/\b0 followers\b/)).toBeVisible(); // page rendered
+    await expect(page.getByRole("button", { name: /^follow this shop$/i })).toHaveCount(0);
   });
 });
