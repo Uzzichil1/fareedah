@@ -3,24 +3,28 @@
 export type BundleStatus =
   | "OPEN"
   | "SUBMITTED"
+  | "COUNTERED"
   | "ACCEPTED"
   | "DECLINED"
   | "CHECKED_OUT";
 
 /** All statuses that represent an active (non-checked-out) bundle, including
- *  declined ones still visible in the buyer's bag. */
+ *  declined ones still visible in the buyer's bag and in-flight counters. */
 export const ACTIVE_BUNDLE_STATUSES = [
   "OPEN",
   "SUBMITTED",
+  "COUNTERED",
   "ACCEPTED",
   "DECLINED",
 ] as const satisfies readonly BundleStatus[];
 
 /** Subset of statuses where a bundle is purchasable / has meaningful bag weight.
- *  Excludes DECLINED (offer gone) and CHECKED_OUT. Used for the bag item count. */
+ *  Excludes DECLINED (offer gone) and CHECKED_OUT. COUNTERED is an in-flight
+ *  negotiation and counts like SUBMITTED. Used for the bag item count. */
 export const PURCHASABLE = [
   "OPEN",
   "SUBMITTED",
+  "COUNTERED",
   "ACCEPTED",
 ] as const satisfies readonly BundleStatus[];
 
@@ -30,15 +34,21 @@ export type BundleAction =
   | "submitOffer"
   | "withdrawOffer"
   | "accept"
-  | "decline";
+  | "decline"
+  | "sellerCounter"
+  | "acceptCounter"
+  | "declineCounter";
 
 const TRANSITIONS: Record<BundleAction, { from: BundleStatus[]; to: BundleStatus }> = {
   addItem: { from: ["OPEN", "DECLINED"], to: "OPEN" },
   removeItem: { from: ["OPEN", "DECLINED"], to: "OPEN" },
-  submitOffer: { from: ["OPEN", "DECLINED"], to: "SUBMITTED" },
+  submitOffer: { from: ["OPEN", "DECLINED", "COUNTERED"], to: "SUBMITTED" },
   withdrawOffer: { from: ["SUBMITTED"], to: "OPEN" },
   accept: { from: ["SUBMITTED"], to: "ACCEPTED" },
   decline: { from: ["SUBMITTED"], to: "DECLINED" },
+  sellerCounter: { from: ["SUBMITTED"], to: "COUNTERED" },
+  acceptCounter: { from: ["COUNTERED"], to: "ACCEPTED" },
+  declineCounter: { from: ["COUNTERED"], to: "DECLINED" },
 };
 
 /** The set of from-statuses each action is allowed from (the buy-now/checkout

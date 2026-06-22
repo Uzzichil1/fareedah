@@ -47,7 +47,8 @@ describe("listedTotalCents", () => {
 
 describe("ACTIVE_BUNDLE_STATUSES / PURCHASABLE constants", () => {
   it("PURCHASABLE excludes DECLINED and CHECKED_OUT", () => {
-    expect(PURCHASABLE).toHaveLength(3);
+    expect(PURCHASABLE).toHaveLength(4);
+    expect(PURCHASABLE).toContain("COUNTERED");
     expect(PURCHASABLE).not.toContain("DECLINED");
     expect(PURCHASABLE).not.toContain("CHECKED_OUT");
     expect(PURCHASABLE).toContain("OPEN");
@@ -55,12 +56,38 @@ describe("ACTIVE_BUNDLE_STATUSES / PURCHASABLE constants", () => {
     expect(PURCHASABLE).toContain("ACCEPTED");
   });
   it("ACTIVE_BUNDLE_STATUSES includes DECLINED but excludes CHECKED_OUT", () => {
-    expect(ACTIVE_BUNDLE_STATUSES).toHaveLength(4);
+    expect(ACTIVE_BUNDLE_STATUSES).toHaveLength(5);
+    expect(ACTIVE_BUNDLE_STATUSES).toContain("COUNTERED");
     expect(ACTIVE_BUNDLE_STATUSES).toContain("DECLINED");
     expect(ACTIVE_BUNDLE_STATUSES).not.toContain("CHECKED_OUT");
     expect(ACTIVE_BUNDLE_STATUSES).toContain("OPEN");
     expect(ACTIVE_BUNDLE_STATUSES).toContain("SUBMITTED");
     expect(ACTIVE_BUNDLE_STATUSES).toContain("ACCEPTED");
+  });
+});
+
+describe("counter-offer transitions", () => {
+  it("seller counters only from SUBMITTED → COUNTERED", () => {
+    expect(canTransition("SUBMITTED", "sellerCounter")).toBe(true);
+    expect(canTransition("OPEN", "sellerCounter")).toBe(false);
+    expect(canTransition("COUNTERED", "sellerCounter")).toBe(false);
+    expect(nextStatus("sellerCounter")).toBe("COUNTERED");
+  });
+  it("buyer re-counter is submitOffer from COUNTERED → SUBMITTED", () => {
+    expect(canTransition("COUNTERED", "submitOffer")).toBe(true);
+    expect(canTransition("OPEN", "submitOffer")).toBe(true);
+    expect(canTransition("DECLINED", "submitOffer")).toBe(true);
+    expect(canTransition("SUBMITTED", "submitOffer")).toBe(false);
+    expect(canTransition("ACCEPTED", "submitOffer")).toBe(false);
+    expect(nextStatus("submitOffer")).toBe("SUBMITTED");
+  });
+  it("buyer accepts/declines a counter only from COUNTERED", () => {
+    expect(canTransition("COUNTERED", "acceptCounter")).toBe(true);
+    expect(canTransition("COUNTERED", "declineCounter")).toBe(true);
+    expect(canTransition("SUBMITTED", "acceptCounter")).toBe(false);
+    expect(canTransition("ACCEPTED", "declineCounter")).toBe(false);
+    expect(nextStatus("acceptCounter")).toBe("ACCEPTED");
+    expect(nextStatus("declineCounter")).toBe("DECLINED");
   });
 });
 
