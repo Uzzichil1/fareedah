@@ -5,6 +5,8 @@ import { ListingCard } from "@/components/listings/ListingCard";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { getOptionalUserId } from "@/lib/dal";
 import { getFavoritedListingIds } from "@/lib/favorites-data";
+import { getFollowerCount, isFollowing } from "@/lib/follows-data";
+import { FollowButton } from "@/components/store/FollowButton";
 
 export default async function StorefrontPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -26,6 +28,9 @@ export default async function StorefrontPage({ params }: { params: Promise<{ slu
   if (!storefront) notFound();
 
   const userId = await getOptionalUserId();
+  const followerCount = await getFollowerCount(storefront.id);
+  const following = userId ? await isFollowing(userId, storefront.id) : false;
+  const isOwnShop = userId === storefront.userId;
   const favIds = userId
     ? await getFavoritedListingIds(userId, storefront.listings.map((l) => l.id))
     : new Set<string>();
@@ -78,6 +83,18 @@ export default async function StorefrontPage({ params }: { params: Promise<{ slu
               {storefront.bio}
             </p>
           ) : null}
+          <div className="mt-4 flex flex-col items-center gap-3">
+            <p className="text-sm text-ink-soft">
+              {followerCount} {followerCount === 1 ? "follower" : "followers"}
+            </p>
+            {!isOwnShop ? (
+              <FollowButton
+                storefrontId={storefront.id}
+                initialFollowing={following}
+                isAuthenticated={!!userId}
+              />
+            ) : null}
+          </div>
         </header>
 
         {/* Listings */}

@@ -8,6 +8,8 @@ import { Badge } from "@/components/ui/Badge";
 import { auth } from "@/auth";
 import { AddToBagButton } from "@/components/bag/AddToBagButton";
 import { FavoriteButton } from "@/components/listings/FavoriteButton";
+import { isFollowing } from "@/lib/follows-data";
+import { FollowButton } from "@/components/store/FollowButton";
 
 export default async function ListingDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -37,6 +39,9 @@ export default async function ListingDetailPage({ params }: { params: Promise<{ 
         select: { id: true },
       }))
     : false;
+
+  const isOwnShop = viewerId === listing.storefront.userId;
+  const followingShop = viewerId ? await isFollowing(viewerId, listing.storefrontId) : false;
 
   return (
     <>
@@ -138,6 +143,15 @@ export default async function ListingDetailPage({ params }: { params: Promise<{ 
               >
                 {listing.storefront.name}
               </Link>
+              {!isOwnShop ? (
+                <div className="mt-3">
+                  <FollowButton
+                    storefrontId={listing.storefrontId}
+                    initialFollowing={followingShop}
+                    isAuthenticated={!!viewerId}
+                  />
+                </div>
+              ) : null}
             </div>
           </div>
         </div>
