@@ -39,6 +39,9 @@ export async function SiteHeader() {
           <Link href="/favourites" className="transition-colors hover:text-ink">
             Favourites
           </Link>
+          <Link href="/following" className="transition-colors hover:text-ink">
+            Following
+          </Link>
           <Link href="/sell" className="transition-colors hover:text-ink">
             Sell
           </Link>
