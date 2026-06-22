@@ -14,7 +14,7 @@ export default async function SellOffersPage() {
   const { storefrontId } = await requireSeller();
 
   const offers = await prisma.bundle.findMany({
-    where: { storefrontId, status: "SUBMITTED" },
+    where: { storefrontId, status: { in: ["SUBMITTED", "COUNTERED"] } },
     orderBy: { updatedAt: "asc" },
     include: {
       buyer: { select: { name: true, email: true } },
@@ -43,7 +43,7 @@ export default async function SellOffersPage() {
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-sage">Seller</p>
             <h1 className="mt-1 font-display text-3xl text-ink">Offers</h1>
           </div>
-          <Badge tone="rose">{offers.length} pending</Badge>
+          <Badge tone="rose">{offers.filter((o) => o.status === "SUBMITTED").length} pending</Badge>
         </div>
 
         {offers.length === 0 ? (
@@ -85,13 +85,27 @@ export default async function SellOffersPage() {
                     <span className="text-sm text-ink-soft">Listed total</span>
                     <span className="font-display text-lg text-ink">${centsToDollars(listed)}</span>
                   </div>
-                  <div className="mt-1 flex items-baseline justify-between">
-                    <span className="text-sm text-ink-soft">Offered</span>
-                    <span className="font-display text-lg text-rose-deep">
-                      ${centsToDollars(b.offerCents ?? 0)}
-                    </span>
-                  </div>
-                  <OfferActions bundleId={b.id} />
+                  {b.status === "SUBMITTED" ? (
+                    <>
+                      <div className="mt-1 flex items-baseline justify-between">
+                        <span className="text-sm text-ink-soft">Offered</span>
+                        <span className="font-display text-lg text-rose-deep">
+                          ${centsToDollars(b.offerCents ?? 0)}
+                        </span>
+                      </div>
+                      <OfferActions bundleId={b.id} />
+                    </>
+                  ) : (
+                    <>
+                      <div className="mt-1 flex items-baseline justify-between">
+                        <span className="text-sm text-ink-soft">You countered</span>
+                        <span className="font-display text-lg text-rose-deep">
+                          ${centsToDollars(b.offerCents ?? 0)}
+                        </span>
+                      </div>
+                      <p className="mt-2 text-sm italic text-ink-soft">Awaiting buyer…</p>
+                    </>
+                  )}
                 </li>
               );
             })}
