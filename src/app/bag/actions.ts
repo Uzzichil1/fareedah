@@ -9,6 +9,7 @@ import { listedTotalCents, offerError } from "@/lib/bundle";
 export type ActionResult = { error: string } | undefined;
 
 const EDITABLE = ["OPEN", "DECLINED"] as const;
+const OFFERABLE = ["OPEN", "DECLINED", "COUNTERED"] as const;
 
 /** Add a LIVE listing to the buyer's OPEN bundle for that seller (find-or-create). */
 export async function addToBundle(listingId: string): Promise<ActionResult> {
@@ -120,7 +121,7 @@ export async function submitOffer(bundleId: string, offerDollars: string): Promi
   if (offerCents === null) return { error: "Enter a valid amount." };
 
   const bundle = await prisma.bundle.findFirst({
-    where: { id: bundleId, buyerId: userId, status: { in: [...EDITABLE] } },
+    where: { id: bundleId, buyerId: userId, status: { in: [...OFFERABLE] } },
     select: {
       items: { select: { listing: { select: { priceCents: true, status: true } } } },
     },
@@ -133,9 +134,9 @@ export async function submitOffer(bundleId: string, offerDollars: string): Promi
   const err = offerError(offerCents, listed);
   if (err) return { error: err };
 
-  // Atomic guard: only transitions if still owned + still editable.
+  // Atomic guard: only transitions if still owned + still offerable.
   const { count } = await prisma.bundle.updateMany({
-    where: { id: bundleId, buyerId: userId, status: { in: [...EDITABLE] } },
+    where: { id: bundleId, buyerId: userId, status: { in: [...OFFERABLE] } },
     data: { status: "SUBMITTED", offerCents },
   });
   if (count === 0) return { error: "This bag can't receive an offer." };
@@ -152,6 +153,30 @@ export async function withdrawOffer(bundleId: string): Promise<ActionResult> {
     data: { status: "OPEN", offerCents: null },
   });
   if (count === 0) return { error: "No pending offer to withdraw." };
+  revalidatePath("/bag");
+  return undefined;
+}
+
+/** Buyer accepts the seller's counter → ACCEPTED (offerCents stays = agreed counter). */
+export async function acceptCounter(bundleId: string): Promise<ActionResult> {
+  const { userId } = await verifySession();
+  const { count } = await prisma.bundle.updateMany({
+    where: { id: bundleId, buyerId: userId, status: "COUNTERED" },
+    data: { status: "ACCEPTED" },
+  });
+  if (count === 0) return { error: "This counter is no longer available." };
+  revalidatePath("/bag");
+  return undefined;
+}
+
+/** Buyer declines the seller's counter → DECLINED. */
+export async function declineCounter(bundleId: string): Promise<ActionResult> {
+  const { userId } = await verifySession();
+  const { count } = await prisma.bundle.updateMany({
+    where: { id: bundleId, buyerId: userId, status: "COUNTERED" },
+    data: { status: "DECLINED" },
+  });
+  if (count === 0) return { error: "This counter is no longer available." };
   revalidatePath("/bag");
   return undefined;
 }
