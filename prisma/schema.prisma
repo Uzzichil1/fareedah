@@ -221,6 +221,7 @@ enum OrderStatus {
 enum BundleStatus {
   OPEN
   SUBMITTED
+  COUNTERED
   ACCEPTED
   DECLINED
   CHECKED_OUT

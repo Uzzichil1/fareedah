@@ -19,7 +19,7 @@ export function BagControls({
   items,
 }: {
   bundleId: string;
-  status: "OPEN" | "SUBMITTED" | "ACCEPTED" | "DECLINED" | "CHECKED_OUT";
+  status: "OPEN" | "SUBMITTED" | "COUNTERED" | "ACCEPTED" | "DECLINED" | "CHECKED_OUT";
   items: Item[];
 }) {
   const router = useRouter();
