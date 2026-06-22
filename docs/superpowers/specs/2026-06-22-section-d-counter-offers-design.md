@@ -143,8 +143,10 @@ All four guards are ownership- + state-scoped atomic `updateMany`/`findFirst`, m
 - The signed-in human click-through (offer → counter → counter-back → accept) is the final confirmation, consistent with the rest of the project.
 
 ## Build order (for the plan)
-1. State machine: `bundle.ts` (+`COUNTERED`, transitions, status sets) + extend `bundle.test.ts`.
-2. Migration: `BundleStatus += COUNTERED`; `prisma migrate dev` + `prisma generate` (guardrailed).
+> **Migration MUST precede the `bundle.ts` constant change.** `ACTIVE_BUNDLE_STATUSES`/`PURCHASABLE` are spread into Prisma `where` clauses (`src/app/bag/page.tsx:24`, `src/components/site/SiteHeader.tsx:19`) typed against the *generated* `BundleStatus` enum. If `"COUNTERED"` is added to those constants before `prisma generate` regenerates the enum, the spread `(…|"COUNTERED")[]` is non-assignable to the generated `BundleStatus[]` and **`tsc` fails in those two consumer files** — a confusing failure far from the edit. So migrate + generate first, then change the constants.
+
+1. **Migration first:** `BundleStatus += COUNTERED`; `prisma migrate dev --name add_countered_status` + `prisma generate` (guardrailed; additive). Depends on nothing.
+2. State machine: `bundle.ts` (+`COUNTERED` in the local `BundleStatus` union, transitions, and the two status-set constants) + extend `bundle.test.ts` (length asserts → `PURCHASABLE` 4, `ACTIVE_BUNDLE_STATUSES` 5, `COUNTERED` ∈ both). **Cross-cutting check:** this task changes a shared constant's membership — run `npx tsc --noEmit` and confirm BOTH consumers (`bag/page.tsx`, `SiteHeader.tsx`) still typecheck (they will, now that the generated enum has `COUNTERED`); there is no `switch(status)` on `BundleStatus` to update (verified).
 3. Seller `counterOffer` action.
 4. Buyer `acceptCounter`/`declineCounter` + widen `submitOffer` to `OFFERABLE`; `scripts/smoke-counter.ts`.
 5. `OfferActions` counter UI + seller offers page (`SUBMITTED`+`COUNTERED`).
