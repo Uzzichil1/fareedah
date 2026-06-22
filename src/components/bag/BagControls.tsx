@@ -7,6 +7,8 @@ import {
   clearBundle,
   submitOffer,
   withdrawOffer,
+  acceptCounter,
+  declineCounter,
 } from "@/app/bag/actions";
 import { Button } from "@/components/ui/Button";
 import { Input, FieldError } from "@/components/ui/inputs";
@@ -86,6 +88,32 @@ export function BagControls({
         >
           Withdraw offer
         </Button>
+      )}
+
+      {status === "COUNTERED" && (
+        <div className="flex flex-col gap-2">
+          <div className="flex gap-2">
+            <Button variant="sage" size="sm" disabled={pending} onClick={() => run(() => acceptCounter(bundleId))}>
+              Accept counter
+            </Button>
+            <Button variant="danger" size="sm" disabled={pending} onClick={() => run(() => declineCounter(bundleId))}>
+              Decline counter
+            </Button>
+          </div>
+          <div className="flex items-center gap-2">
+            <Input
+              value={offer}
+              onChange={(e) => setOffer(e.target.value)}
+              placeholder="Counter (USD)"
+              aria-label="Counter amount in USD"
+              inputMode="decimal"
+              className="max-w-[10rem]"
+            />
+            <Button variant="secondary" size="sm" disabled={pending} onClick={() => run(() => submitOffer(bundleId, offer))}>
+              Counter
+            </Button>
+          </div>
+        </div>
       )}
 
       <div className="flex items-center gap-3">

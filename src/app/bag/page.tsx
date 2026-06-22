@@ -13,6 +13,7 @@ export const metadata = { title: "Your bag" };
 const OFFER_BADGE: Record<string, { tone: "neutral" | "sage" | "rose" | "danger"; label: string }> = {
   OPEN: { tone: "neutral", label: "In bag" },
   SUBMITTED: { tone: "rose", label: "Offer sent" },
+  COUNTERED: { tone: "rose", label: "Seller countered" },
   ACCEPTED: { tone: "sage", label: "Offer accepted" },
   DECLINED: { tone: "danger", label: "Offer declined" },
 };
@@ -108,12 +109,19 @@ export default async function BagPage() {
                     <span className="text-sm text-ink-soft">Listed total</span>
                     <span className="font-display text-lg text-ink">${centsToDollars(listed)}</span>
                   </div>
-                  {b.offerCents != null && (b.status === "SUBMITTED" || b.status === "ACCEPTED") && (
-                    <div className="mt-1 flex items-baseline justify-between">
-                      <span className="text-sm text-ink-soft">Your offer</span>
-                      <span className="font-display text-lg text-rose-deep">${centsToDollars(b.offerCents)}</span>
-                    </div>
-                  )}
+                  {b.offerCents != null &&
+                    (b.status === "SUBMITTED" || b.status === "COUNTERED" || b.status === "ACCEPTED") && (
+                      <div className="mt-1 flex items-baseline justify-between">
+                        <span className="text-sm text-ink-soft">
+                          {b.status === "SUBMITTED"
+                            ? "Your offer"
+                            : b.status === "COUNTERED"
+                              ? "Seller's counter"
+                              : "Agreed price"}
+                        </span>
+                        <span className="font-display text-lg text-rose-deep">${centsToDollars(b.offerCents)}</span>
+                      </div>
+                    )}
 
                   <BagControls
                     bundleId={b.id}
