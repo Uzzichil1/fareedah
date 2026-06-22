@@ -55,7 +55,7 @@ The master checklist: every Yaga page/flow mapped to TinyKloset. Update status a
 | Sell | Sales / orders (mark shipped) | _none_ | 📋 Gap | Phase 4c/4d |
 | Transact | Bag / cart | `/bag` | ✅ Done | — |
 | Transact | Make offer | `/bag` · `/sell/offers` | ✅ Done | — |
-| Transact | Counter-offer | _none_ (accept/decline only) | 📋 Not started | **Section D** |
+| Transact | Counter-offer | `/bag` · `/sell/offers` | ✅ Done | **Section D** |
 | Transact | Checkout (address, shipping, pay) | _none_ | 📋 Gap | Phase 4c |
 | Transact | Buyer "my purchases" / order tracking | _none_ | 📋 Gap | Phase 4c/4d |
 | Transact | Confirm receipt → release payout | _none_ | 📋 Gap | Phase 4c (escrow) |
@@ -76,7 +76,7 @@ The master checklist: every Yaga page/flow mapped to TinyKloset. Update status a
 |---|---------|--------|-----------|------|------|
 | B | Favorites / likes | ✅ Done (merged to `main`, `a85565a`) | none | [spec](specs/2026-06-19-section-b-favourites-design.md) | [plan](plans/2026-06-20-section-b-favourites.md) |
 | C | Follow shops | ✅ Done (merged to `main`, `16f9a59`) | none | [spec](specs/2026-06-20-section-c-follow-shops-design.md) | [plan](plans/2026-06-20-section-c-follow-shops.md) |
-| D | Counter-offers | 📋 Spec + plan written | existing offer flow | [spec](specs/2026-06-22-section-d-counter-offers-design.md) | [plan](plans/2026-06-22-section-d-counter-offers.md) |
+| D | Counter-offers | ✅ Done (merged to `main`, `c448e3c`) | existing offer flow | [spec](specs/2026-06-22-section-d-counter-offers-design.md) | [plan](plans/2026-06-22-section-d-counter-offers.md) |
 | E | Ratings & reviews | 📋 Not started | completed orders (Phase 4c) | — | — |
 | F | Notifications | 📋 Not started | offers ✅; richer after messaging (4e) | — | — |
 | G | Promoted / boosted listings | 📋 Not started | payments (Phase 4c) for paid boosts | — | — |
