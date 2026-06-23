@@ -40,7 +40,7 @@ The master checklist: every Yaga page/flow mapped to TinyKloset. Update status a
 | Auth | Sign up / log in | `/login` `/signup` | ✅ Done | — |
 | Account | Account settings (name, password) | `/account` | ✅ Done | — |
 | Account | Delivery address / address book | _none_ | 📋 Gap | Phase 4c (checkout dep) |
-| Account | Payout / bank details | `/sell/payouts` | 🔧 In progress | Phase 4b |
+| Account | Payout / bank details | `/sell/payouts` | ✅ Done | Phase 4b |
 | Browse | Home / discover feed | `/` | ✅ Done | — |
 | Browse | Category / search / filter | `/` filter bar | ✅ Done | — |
 | Browse | Item detail | `/listings/[id]` | ✅ Done | — |
@@ -87,7 +87,7 @@ The master checklist: every Yaga page/flow mapped to TinyKloset. Update status a
 
 | Phase | Section | Status |
 |-------|---------|--------|
-| 4b | Stripe Connect seller onboarding (+ `/sell/payouts`) | 🔧 Spec + plan written, ready to build |
+| 4b | Stripe Connect seller onboarding (+ `/sell/payouts`) | ✅ Done (merged to `main`, `4e69278`; live Stripe round-trip runtime-deferred — no keys) |
 | 4c | Checkout & escrow (address book, checkout, orders, confirm-receipt, 18% commission, 3d auto-release) | 📋 Planned |
 | 4d | Shippo shipping labels & tracking (seller sales/mark-shipped, buyer tracking) | 📋 Planned |
 | 4e | Buyer ↔ seller messaging / inbox | 📋 Planned |
