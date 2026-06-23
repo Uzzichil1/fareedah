@@ -8,6 +8,7 @@ import { SiteHeader } from "@/components/site/SiteHeader";
 import { Badge } from "@/components/ui/Badge";
 import { buttonClasses } from "@/components/ui/Button";
 import { ArchiveButton } from "@/components/sell/ArchiveButton";
+import { onboardingState } from "@/lib/stripe-onboarding";
 
 export const metadata: Metadata = { title: "Your listings" };
 
@@ -32,6 +33,15 @@ const STATUS: Record<ListingStatus, { tone: "neutral" | "sage" | "rose" | "dange
 
 export default async function SellDashboardPage() {
   const { storefrontId } = await requireSeller();
+  const storefront = await prisma.storefront.findUniqueOrThrow({
+    where: { id: storefrontId },
+    select: { stripeAccountId: true, stripeChargesEnabled: true, stripePayoutsEnabled: true },
+  });
+  const payoutState = onboardingState({
+    hasAccount: !!storefront.stripeAccountId,
+    chargesEnabled: storefront.stripeChargesEnabled,
+    payoutsEnabled: storefront.stripePayoutsEnabled,
+  });
   const listings = await prisma.listing.findMany({
     where: { storefrontId },
     orderBy: { updatedAt: "desc" },
@@ -62,6 +72,19 @@ export default async function SellDashboardPage() {
             </Link>
           </div>
         </div>
+
+        {payoutState !== "enabled" && (
+          <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-rose-soft/60 bg-blush/40 px-5 py-4">
+            <p className="text-sm text-ink">
+              {payoutState === "incomplete"
+                ? "Finish setting up payouts to receive money when your pieces sell."
+                : "Set up payouts to receive money when your pieces sell."}
+            </p>
+            <Link href="/sell/payouts" className={buttonClasses("primary", "sm")}>
+              {payoutState === "incomplete" ? "Continue setup" : "Set up payouts"}
+            </Link>
+          </div>
+        )}
 
         {listings.length === 0 ? (
           <div className="grid place-items-center rounded-[20px] border border-dashed border-line bg-surface/60 px-6 py-16 text-center">
