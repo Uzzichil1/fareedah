@@ -141,17 +141,19 @@ model Brand {
 }
 
 model Storefront {
-  id              String           @id @default(cuid())
-  userId          String           @unique
-  slug            String           @unique
-  name            String
-  bio             String?
-  avatarUrl       String?
-  bannerUrl       String?
-  status          StorefrontStatus @default(ACTIVE)
-  stripeAccountId String?
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
+  id                   String           @id @default(cuid())
+  userId               String           @unique
+  slug                 String           @unique
+  name                 String
+  bio                  String?
+  avatarUrl            String?
+  bannerUrl            String?
+  status               StorefrontStatus @default(ACTIVE)
+  stripeAccountId      String?
+  stripeChargesEnabled Boolean          @default(false)
+  stripePayoutsEnabled Boolean          @default(false)
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
 
   user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   listings   Listing[]
@@ -276,7 +278,7 @@ model Bundle {
   buyerId      String
   storefrontId String
   status       BundleStatus @default(OPEN)
-  offerCents   Int?         // null = no offer (buy-now). Proposed total on SUBMITTED; agreed total on ACCEPTED.
+  offerCents   Int? // null = no offer (buy-now). Proposed total on SUBMITTED; agreed total on ACCEPTED.
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
 
