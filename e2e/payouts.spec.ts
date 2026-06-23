@@ -30,4 +30,17 @@ test.describe("4b — Stripe payout onboarding (no Stripe round-trip)", () => {
     });
     expect(res.status()).toBe(400);
   });
+
+  test("a seller with no Stripe account visiting /return is redirected to /sell/payouts", async ({ page }) => {
+    test.setTimeout(60_000);
+    const seller = await createUser({ emailTag: "payouts-return-seller" });
+    await createStorefront(seller.id); // no stripeAccountId → refreshOnboardingStatus no-ops
+
+    await signIn(page, seller.email, E2E_PASSWORD);
+
+    // No stripeAccountId → refreshOnboardingStatus returns early (no Stripe call).
+    await page.goto("/sell/payouts/return");
+    await expect(page).toHaveURL(/\/sell\/payouts$/);
+    await expect(page.getByRole("heading", { name: "Payouts" })).toBeVisible();
+  });
 });

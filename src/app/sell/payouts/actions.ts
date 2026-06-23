@@ -1,6 +1,5 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import { requireSeller } from "@/lib/dal";
 import { stripe, APP_ORIGIN } from "@/lib/stripe";
@@ -60,8 +59,6 @@ export async function refreshOnboardingStatus(): Promise<ActionResult> {
         stripePayoutsEnabled: account.payouts_enabled ?? false,
       },
     });
-    revalidatePath("/sell/payouts");
-    revalidatePath("/sell");
     return undefined;
   } catch (err) {
     console.error("refreshOnboardingStatus failed:", err);

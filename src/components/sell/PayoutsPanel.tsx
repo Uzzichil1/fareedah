@@ -1,12 +1,14 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { startStripeOnboarding, refreshOnboardingStatus } from "@/app/sell/payouts/actions";
 import { Button } from "@/components/ui/Button";
 import { FieldError } from "@/components/ui/inputs";
 import type { OnboardingState } from "@/lib/stripe-onboarding";
 
 export function PayoutsPanel({ state }: { state: OnboardingState }) {
+  const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
@@ -24,7 +26,7 @@ export function PayoutsPanel({ state }: { state: OnboardingState }) {
     startTransition(async () => {
       const r = await refreshOnboardingStatus();
       if (r?.error) setError(r.error);
-      // success revalidates /sell/payouts; the server re-renders with fresh state
+      else router.refresh(); // re-fetch the server component with synced flags
     });
   }
 
