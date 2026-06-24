@@ -40,7 +40,7 @@ The master checklist: every Yaga page/flow mapped to TinyKloset. Update status a
 | Auth | Sign up / log in | `/login` `/signup` | ✅ Done | — |
 | Account | Account settings (name, password) | `/account` | ✅ Done | — |
 | Account | Delivery address / address book | _none_ | 📋 Gap | Phase 4c (checkout dep) |
-| Account | Payout / bank details | `/sell/payouts` | ✅ Done | Phase 4b |
+| Account | Payout / bank details | _none (Stripe 4b reverted)_ | 📋 Rebuild on Stitch | Stitch payments pivot |
 | Browse | Home / discover feed | `/` | ✅ Done | — |
 | Browse | Category / search / filter | `/` filter bar | ✅ Done | — |
 | Browse | Item detail | `/listings/[id]` | ✅ Done | — |
@@ -83,12 +83,25 @@ The master checklist: every Yaga page/flow mapped to TinyKloset. Update status a
 | H | Static pages (help/FAQ/how-it-works, T&Cs) | 📋 Not started | none | — | — |
 | A | Yaga visual redesign | 📋 Not started (deferred to LAST) | pages/flows complete | — | — |
 
-### Existing Phase 4 roadmap (context — tracked in its own specs/plans)
+### ⚠️ Payments pivot: Stripe → Stitch (2026-06-24)
+
+Payments provider changed from **Stripe to [Stitch](https://docs.stitch.money/api)** (South-African pay-in/payout API; **ZAR only**; OAuth2 client-credentials + GraphQL; Pay By Bank pay-ins; `clientDisbursementCreate` payouts to any bank account on demand — **no Stripe-Connect-style hosted onboarding**; **no native escrow** — we hold in a float account and disburse ourselves; webhooks via **Svix**). **Stripe 4b is the wrong model and is being reverted.** Stitch sub-projects (each its own spec→plan→build):
+
+| # | Stitch sub-project | Status | Spec | Plan |
+|---|--------------------|--------|------|------|
+| S0 | Groundwork: revert Stripe 4b + switch currency to ZAR | 📋 Spec + plan written, ready to build | [spec](specs/2026-06-24-zar-groundwork-design.md) | [plan](plans/2026-06-24-zar-groundwork.md) |
+| S1 | Seller payout setup on Stitch (bank-details form + Stitch account verification) — replaces Stripe 4b | 📋 Not started | — | — |
+| S2 | Checkout pay-in (Pay By Bank) + order creation + payment webhook | 📋 Not started | — | — |
+| S3 | Escrow hold → 18% commission → disbursement release (buyer-confirm-receipt, else auto 3d) + disbursement webhook | 📋 Not started | — | — |
+
+Locked decisions: revert Stripe 4b; switch to ZAR; escrow release = buyer-confirms-receipt-or-auto-after-3-days; we run escrow in a Stitch float account (keep 18%, disburse 82%).
+
+### Existing Phase 4 roadmap (context — superseded by the Stitch pivot above)
 
 | Phase | Section | Status |
 |-------|---------|--------|
-| 4b | Stripe Connect seller onboarding (+ `/sell/payouts`) | ✅ Done (merged to `main`, `4e69278`; live Stripe round-trip runtime-deferred — no keys) |
-| 4c | Checkout & escrow (address book, checkout, orders, confirm-receipt, 18% commission, 3d auto-release) | 📋 Planned |
+| 4b | Stripe Connect seller onboarding | ❌ Reverted — replaced by Stitch S0/S1 (was merged `4e69278`, never pushed; reverted in S0) |
+| 4c | Checkout & escrow | ↳ Superseded by Stitch **S2 + S3** (ZAR, Stitch Pay By Bank + self-run escrow/disbursement) |
 | 4d | Shippo shipping labels & tracking (seller sales/mark-shipped, buyer tracking) | 📋 Planned |
 | 4e | Buyer ↔ seller messaging / inbox | 📋 Planned |
 
